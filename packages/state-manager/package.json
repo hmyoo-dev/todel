@@ -2,6 +2,7 @@
   "name": "state-manager",
   "version": "0.1.0",
   "license": "MIT",
+  "main": "dist/index.js",
   "scripts": {
     "build": "tsc --build",
     "build:watch": "tsc --build --watch",
