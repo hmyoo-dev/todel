@@ -1,3 +1,4 @@
+import type { Controller } from "./Controller";
 import type { Service } from "./Service";
 
 /** Common types */
@@ -69,3 +70,14 @@ export interface StateModifier<State> {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type AnyService = Service<any>;
 export type ServiceRepo = Record<string, AnyService>;
+
+/** Store types */
+export interface StorePayload<S extends ServiceRepo> {
+  services: S;
+  controllers: Controller[];
+  errorHandler?: Consumer<unknown>;
+}
+
+export interface StorePayloadProvider<S extends ServiceRepo> {
+  (): StorePayload<S>;
+}
