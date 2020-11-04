@@ -12,5 +12,5 @@
     "declarationMap": true,
     "declarationDir": "./dist"
   },
-  "include": ["src/**/*.ts"]
+  "files": ["src/index.ts"]
 }
