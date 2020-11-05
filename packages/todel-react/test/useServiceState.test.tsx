@@ -37,4 +37,12 @@ describe("useServiceState", () => {
 
     expect(result.current).toEqual(10);
   });
+
+  it("should throw error if store is not provided", () => {
+    const { result } = renderHook(() =>
+      useServiceState((repo: CounterServiceRepo) => repo.counter)
+    );
+
+    expect(result.error).toBeInstanceOf(Error);
+  });
 });
