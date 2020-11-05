@@ -52,6 +52,10 @@ export function prepareActionCreator(
   return applyActionCreator(type, creator);
 }
 
+export const scopedActionTypeFactory = (scopeName: string) => (
+  type: string
+): string => `${scopeName}/${type}`;
+
 function applyActionCreator<T extends ActionCreator<unknown, Meta>>(
   type: string,
   creator: Func<unknown, unknown>
