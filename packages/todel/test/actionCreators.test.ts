@@ -1,4 +1,8 @@
-import { actionCreator, prepareActionCreator } from "../src/actionCreators";
+import {
+  actionCreator,
+  prepareActionCreator,
+  scopedActionTypeFactory,
+} from "../src/actionCreators";
 import type { Action } from "../src/types";
 
 describe("actionCreator", () => {
@@ -86,5 +90,13 @@ describe("prepareActionCreator", () => {
       expect(action.payload.message).toEqual("test");
       done();
     }
+  });
+});
+
+describe("scopedActionTypeFactory", () => {
+  it("should return scoped type string", () => {
+    const foo = scopedActionTypeFactory("foo");
+
+    expect(foo("bar")).toEqual("foo/bar");
   });
 });
