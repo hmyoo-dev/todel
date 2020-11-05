@@ -28,16 +28,12 @@ export interface JsonSerializable {
 }
 
 /** PubSub */
-export interface Subscriber<Value> {
-  (value: Value): void;
-}
-
 export interface Subscription {
   unsubscribe(): void;
 }
 
 export interface Subscribable<Value> {
-  subscribe(subscriber: Subscriber<Value>): Subscription;
+  subscribe(subscriber: Consumer<Value>): Subscription;
 }
 
 /** Action */

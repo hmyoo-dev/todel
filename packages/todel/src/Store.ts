@@ -7,6 +7,7 @@ import {
   ServiceRepo,
   StorePayload,
   StorePayloadProvider,
+  Subscription,
   ToJsonOption,
 } from "./types";
 
@@ -41,6 +42,10 @@ export class Store<S extends ServiceRepo> implements JsonSerializable {
 
   get services(): S {
     return this._services;
+  }
+
+  subscribeAction(subscriber: Consumer<Action>): Subscription {
+    return this.actionEmitter.subscribe(subscriber);
   }
 
   toJson(option?: ToJsonOption): Record<string, unknown> {

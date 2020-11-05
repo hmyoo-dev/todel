@@ -4,8 +4,8 @@ import type {
   ToJsonOption,
   StateModifier,
   Subscribable,
-  Subscriber,
   Subscription,
+  Consumer,
 } from "./types";
 
 export abstract class Service<State>
@@ -25,7 +25,7 @@ export abstract class Service<State>
     return this._state;
   }
 
-  subscribe(subscriber: Subscriber<State>): Subscription {
+  subscribe(subscriber: Consumer<State>): Subscription {
     return this.pubSub.subscribe(subscriber);
   }
 

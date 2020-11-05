@@ -70,6 +70,17 @@ describe("Store", () => {
     expect(result).toEqual({ counter: { count: 0 } });
   });
 
+  it("could subscribe action emitter", (done) => {
+    const store = createStore();
+
+    store.subscribeAction((action) => {
+      expect(action.type).toEqual(increase.type);
+      done();
+    });
+
+    store.dispatch(increase());
+  });
+
   // Helpers
   function checkErrorHandler(handler: jest.Mock, errorMessage: string): void {
     expect(handler).toHaveBeenCalled();
