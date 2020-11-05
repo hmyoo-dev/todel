@@ -93,10 +93,8 @@ class CounterService extends Service<{ count: number }> {
 }
 
 // controllers
-class CounterController extends Controller {
-  constructor(private counterService: CounterService) {
-    super();
-  }
+class CounterController implements Controller {
+  constructor(private counterService: CounterService) {}
 
   listener(action: Action, emitErr: ErrorEmitter): void | Promise<void> {
     if (increase.match(action)) {
