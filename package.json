@@ -1,8 +1,6 @@
 {
-  "name": "next-state-manager",
-  "version": "1.0.0",
-  "main": "index.js",
-  "repository": "https://github.com/hmyoo-dev/next-state-manager.git",
+  "name": "todel",
+  "repository": "https://github.com/hmyoo-dev/todel.git",
   "author": "Hyeongmin Yoo <hmyoo.dev@gmail.com>",
   "license": "MIT",
   "private": true,
