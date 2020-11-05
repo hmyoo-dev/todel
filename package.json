@@ -5,7 +5,8 @@
   "license": "MIT",
   "private": true,
   "workspaces": [
-    "packages/*"
+    "packages/*",
+    "examples"
   ],
   "husky": {
     "hooks": {
@@ -22,7 +23,8 @@
     "build": "lerna run build",
     "build:watch": "lerna run build:watch --parallel",
     "test": "lerna run test --stream",
-    "coverage": "lerna run coverage --stream"
+    "coverage": "lerna run coverage --stream",
+    "examples": "yarn workspace examples dev"
   },
   "devDependencies": {
     "@babel/core": "^7.12.3",
