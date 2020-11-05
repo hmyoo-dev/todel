@@ -1,5 +1,6 @@
 import type { Controller } from "./Controller";
 import type { Service } from "./Service";
+import type { Store } from "./Store";
 
 /** Common types */
 export interface Func<T, R> {
@@ -81,3 +82,5 @@ export interface StorePayload<S extends ServiceRepo> {
 export interface StorePayloadProvider<S extends ServiceRepo> {
   (): StorePayload<S>;
 }
+
+export type AnyStore = Store<ServiceRepo>;
