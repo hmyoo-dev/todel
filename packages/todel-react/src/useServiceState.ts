@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from "react";
 import { Service } from "todel";
-import { StoreContext } from "todel-react/src/StoreContext";
+import { StoreContext } from "./StoreContext";
 
 export interface ServiceSelector<Repo, State> {
   (repo: Repo): Service<State>;
@@ -22,6 +22,11 @@ export function useServiceState(
   stateSelector: StateSelector<unknown, unknown> = (s) => s
 ): unknown {
   const store = useContext(StoreContext);
+
+  if (!store) {
+    throw new Error("Store is not provided");
+  }
+
   const service = serviceSelector(store.services);
   const initValue = stateSelector(service.state);
 
@@ -37,5 +42,6 @@ export function useServiceState(
       subscription.unsubscribe();
     };
   }, [service, stateSelector]);
+
   return value;
 }

@@ -18,4 +18,10 @@ describe("useDispatch", () => {
 
     expect(counter.state.count).toEqual(1);
   });
+
+  it("should throw error if store is not provided", () => {
+    const { result } = renderHook(() => useDispatch());
+
+    expect(result.error).toBeInstanceOf(Error);
+  });
 });

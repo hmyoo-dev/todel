@@ -1,6 +1,6 @@
 import React, { FC } from "react";
 import { AnyStore } from "todel";
-import { StoreContext } from "todel-react/src/StoreContext";
+import { StoreContext } from "./StoreContext";
 
 export interface StoreProviderProps {
   store: AnyStore;
