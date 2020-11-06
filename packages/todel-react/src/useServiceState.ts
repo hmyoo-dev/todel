@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { Service } from "todel";
 import { StoreContext } from "./StoreContext";
 
@@ -15,11 +15,13 @@ export function useServiceState<Repo, State>(
 ): State;
 export function useServiceState<Repo, State, Result>(
   serviceSelector: ServiceSelector<Repo, State>,
-  stateSelector: StateSelector<State, Result>
+  stateSelector: StateSelector<State, Result>,
+  equalityFn?: (prev: Result, next: Result) => boolean
 ): Result;
 export function useServiceState(
   serviceSelector: ServiceSelector<unknown, unknown>,
-  stateSelector: StateSelector<unknown, unknown> = (s) => s
+  stateSelector: StateSelector<unknown, unknown> = (s) => s,
+  equalityFn: (prev: unknown, next: unknown) => boolean = (p, n) => p === n
 ): unknown {
   const store = useContext(StoreContext);
 
@@ -31,17 +33,21 @@ export function useServiceState(
   const initValue = stateSelector(service.state);
 
   const [value, setValue] = useState(initValue);
+  const cachedValue = useRef(value);
+  cachedValue.current = value;
 
   useEffect(() => {
     const subscription = service.subscribe((state) => {
       const nextValue = stateSelector(state);
-      setValue(nextValue);
+      if (!equalityFn(cachedValue.current, nextValue)) {
+        setValue(nextValue);
+      }
     });
 
     return () => {
       subscription.unsubscribe();
     };
-  }, [service, stateSelector]);
+  }, [service]);
 
   return value;
 }

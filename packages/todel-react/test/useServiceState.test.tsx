@@ -1,7 +1,7 @@
 import { act, renderHook } from "@testing-library/react-hooks";
-import { CounterServiceRepo, increase } from "./fixtures";
-import { createMockStore, createMockWrapper } from "./testHelpers";
 import { useServiceState } from "../src/useServiceState";
+import { CounterServiceRepo, increase, setCount } from "./fixtures";
+import { createMockStore, createMockWrapper } from "./testHelpers";
 
 describe("useServiceState", () => {
   it("should return service state", () => {
@@ -44,5 +44,30 @@ describe("useServiceState", () => {
     );
 
     expect(result.error).toBeInstanceOf(Error);
+  });
+
+  it("should not trigger render when value is not changed", () => {
+    const store = createMockStore();
+    let renderedCount = 0;
+
+    const { result } = renderHook(
+      () => {
+        const count = useServiceState(
+          (repo: CounterServiceRepo) => repo.counter,
+          (counter) => counter.count
+        );
+        renderedCount += 1;
+        return count;
+      },
+      { wrapper: createMockWrapper(store) }
+    );
+
+    expect(result.current).toEqual(0);
+    act(() => store.dispatch(setCount(0)));
+    act(() => store.dispatch(setCount(0)));
+    act(() => store.dispatch(setCount(0)));
+
+    expect(result.current).toEqual(0);
+    expect(renderedCount).toEqual(1);
   });
 });
