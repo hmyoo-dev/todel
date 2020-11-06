@@ -32,15 +32,29 @@ describe("Store", () => {
     expect(counter.state.count).toEqual(1);
   });
 
+  it("can subscribe actions", () => {
+    const store = createStore();
+    const observer = jest.fn();
+    store.subscribeAction(observer);
+
+    const action = increase();
+
+    store.dispatch(action);
+
+    expect(observer).toHaveBeenCalledWith(action);
+  });
+
   it("can dispatch actions", () => {
     const store = createStore();
-    const { counter } = store.services;
+    const actionTypes: string[] = [];
 
-    expect(counter.state.count).toEqual(0);
+    store.subscribeAction((action) => {
+      actionTypes.push(action.type);
+    });
 
     store.dispatch(triggerDecrease());
 
-    expect(counter.state.count).toEqual(-1);
+    expect(actionTypes).toEqual([triggerDecrease.type, decrease.type]);
   });
 
   it("should catch error in sync logic", () => {
