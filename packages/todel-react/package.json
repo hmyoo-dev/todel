@@ -4,6 +4,7 @@
   "main": "dist/index.js",
   "license": "MIT",
   "scripts": {
+    "type-check": "tsc --noEmit",
     "build": "tsc --build",
     "build:watch": "tsc --build --watch",
     "test": "jest",
