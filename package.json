@@ -13,13 +13,8 @@
       "pre-commit": "lint-staged"
     }
   },
-  "lint-staged": {
-    "*.{js,ts,tsx,json}": [
-      "eslint --fix",
-      "prettier --write"
-    ]
-  },
   "scripts": {
+    "type-check": "lerna run type-check --parallel",
     "build": "lerna run build",
     "build:watch": "lerna run build:watch --parallel",
     "test": "lerna run test --stream",
@@ -42,6 +37,7 @@
     "jest": "^26.6.2",
     "lerna": "^3.22.1",
     "lint-staged": "^10.5.1",
+    "organize-imports-cli": "^0.8.0",
     "prettier": "2.1.2",
     "typescript": "^4.0.5"
   }
