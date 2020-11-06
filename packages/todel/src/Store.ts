@@ -1,8 +1,7 @@
-import { Controller } from "./Controller";
 import { PubSub } from "./PubSub";
-import {
+import type {
   Action,
-  Consumer,
+  Controller,
   JsonSerializable,
   ServiceRepo,
   StorePayload,
@@ -14,7 +13,7 @@ import {
 export class Store<S extends ServiceRepo> implements JsonSerializable {
   private readonly _services: S;
   private readonly controllers: readonly Controller[];
-  private readonly errorHandler: Consumer<unknown>;
+  private readonly errorHandler: (this: this, err: unknown) => void;
   private readonly actionEmitter = new PubSub<Action>();
 
   constructor(payloadOrProvider: StorePayload<S> | StorePayloadProvider<S>) {
@@ -31,14 +30,14 @@ export class Store<S extends ServiceRepo> implements JsonSerializable {
 
     this._services = Object.freeze(services);
     this.controllers = Object.freeze(controllers);
-    this.errorHandler = errorHandler;
+    this.errorHandler = errorHandler.bind(this);
 
     this.init();
   }
 
-  dispatch(action: Action): void {
+  dispatch = (action: Action): void => {
     this.actionEmitter.publish(action);
-  }
+  };
 
   get services(): S {
     return this._services;
@@ -66,7 +65,13 @@ export class Store<S extends ServiceRepo> implements JsonSerializable {
     this.actionEmitter.subscribe((action) => {
       try {
         const promiseResults = listeners
-          .map((listener) => listener(action, this.errorHandler))
+          .map((listener) =>
+            listener({
+              action,
+              dispatch: this.dispatch,
+              emitError: this.errorHandler,
+            })
+          )
           .filter(
             (result): result is Promise<void> => result instanceof Promise
           );

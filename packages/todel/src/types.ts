@@ -1,4 +1,3 @@
-import type { Controller } from "./Controller";
 import type { Service } from "./Service";
 import type { Store } from "./Store";
 
@@ -67,6 +66,17 @@ export interface StateModifier<State> {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type AnyService = Service<any>;
 export type ServiceRepo = Record<string, AnyService>;
+
+/** Controller types */
+export interface ActionEvent {
+  action: Action;
+  emitError: Consumer<Error>;
+  dispatch: Consumer<Action>;
+}
+
+export interface Controller {
+  listener(event: ActionEvent): void | Promise<unknown>;
+}
 
 /** Store types */
 export interface StorePayload<S extends ServiceRepo> {
