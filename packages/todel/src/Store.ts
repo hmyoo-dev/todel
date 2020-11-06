@@ -1,6 +1,7 @@
 import { PubSub } from "./PubSub";
 import type {
   Action,
+  Consumer,
   Controller,
   JsonSerializable,
   ServiceRepo,
@@ -15,6 +16,11 @@ export class Store<S extends ServiceRepo> implements JsonSerializable {
   private readonly controllers: readonly Controller[];
   private readonly errorHandler: (this: this, err: unknown) => void;
   private readonly actionEmitter = new PubSub<Action>();
+
+  // If use subscribeAction() with actionEmitter,
+  // dispatching in a controller may make wrong order of actions.
+  // So for keeping actions order, dispatch() publish outerActionEmitter first.
+  private readonly outerActionEmitter = new PubSub<Action>();
 
   constructor(payloadOrProvider: StorePayload<S> | StorePayloadProvider<S>) {
     const payload =
@@ -36,6 +42,7 @@ export class Store<S extends ServiceRepo> implements JsonSerializable {
   }
 
   dispatch = (action: Action): void => {
+    this.outerActionEmitter.publish(action);
     this.actionEmitter.publish(action);
   };
 
@@ -44,7 +51,7 @@ export class Store<S extends ServiceRepo> implements JsonSerializable {
   }
 
   subscribeAction(subscriber: Consumer<Action>): Subscription {
-    return this.actionEmitter.subscribe(subscriber);
+    return this.outerActionEmitter.subscribe(subscriber);
   }
 
   toJson(option?: ToJsonOption): Record<string, unknown> {
