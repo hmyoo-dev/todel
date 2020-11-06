@@ -1,11 +1,15 @@
 import { Store } from "../src/Store";
 import { Service } from "../src/Service";
-import { Controller } from "../src/Controller";
-import { Action, Consumer, ErrorEmitter } from "../src/types";
+import type {
+  Consumer,
+  ErrorEmitter,
+  Controller,
+  ActionEvent,
+} from "../src/types";
 import { actionCreator } from "../src/actionCreators";
 
 describe("Store", () => {
-  it("could be created by provider", () => {
+  it("can be created by provider", () => {
     const store = new Store(() => {
       const counter = new CounterService({ count: 10 });
       return {
@@ -26,6 +30,17 @@ describe("Store", () => {
     store.dispatch(increase());
 
     expect(counter.state.count).toEqual(1);
+  });
+
+  it("can dispatch actions", () => {
+    const store = createStore();
+    const { counter } = store.services;
+
+    expect(counter.state.count).toEqual(0);
+
+    store.dispatch(triggerDecrease());
+
+    expect(counter.state.count).toEqual(-1);
   });
 
   it("should catch error in sync logic", () => {
@@ -52,7 +67,7 @@ describe("Store", () => {
     const errorHandler = jest.fn();
     const store = createStore(errorHandler);
 
-    store.dispatch(emitError());
+    store.dispatch(emitErr());
 
     checkErrorHandler(errorHandler, "test");
   });
@@ -92,14 +107,19 @@ describe("Store", () => {
 
 // actions
 const increase = actionCreator("increase");
+const decrease = actionCreator("decrease");
+const triggerDecrease = actionCreator("triggerDecrease");
 const throwError = actionCreator("throwError");
 const throwAsyncError = actionCreator("throwAsyncError");
-const emitError = actionCreator("emitError");
+const emitErr = actionCreator("emitError");
 
 // services
 class CounterService extends Service<{ count: number }> {
   increase(): void {
     this.updateState((state) => ({ ...state, count: state.count + 1 }));
+  }
+  decrease(): void {
+    this.updateState((state) => ({ ...state, count: state.count - 1 }));
   }
 }
 
@@ -107,27 +127,25 @@ class CounterService extends Service<{ count: number }> {
 class CounterController implements Controller {
   constructor(private counterService: CounterService) {}
 
-  listener(action: Action, emitErr: ErrorEmitter): void | Promise<void> {
+  listener({ action, emitError, dispatch }: ActionEvent): void | Promise<void> {
     if (increase.match(action)) {
-      return this.increase();
+      return this.counterService.increase();
+    }
+    if (decrease.match(action)) {
+      return this.counterService.decrease();
+    }
+    if (triggerDecrease.match(action)) {
+      return dispatch(decrease());
     }
     if (throwError.match(action)) {
-      return this.throwError();
+      throw new Error("test");
     }
     if (throwAsyncError.match(action)) {
       return this.throwAsync();
     }
-    if (emitError.match(action)) {
-      return this.emitError(emitErr);
+    if (emitErr.match(action)) {
+      return this.emitError(emitError);
     }
-  }
-
-  increase(): void {
-    this.counterService.increase();
-  }
-
-  throwError(): void {
-    throw new Error("test");
   }
 
   async throwAsync(): Promise<void> {
