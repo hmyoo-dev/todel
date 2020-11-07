@@ -4,8 +4,12 @@
     "jsx": "react",
     "outDir": "./dist",
     "declaration": true,
-    "declarationDir": "./dist"
+    "declarationDir": "./dist",
+    "rootDir": "./src",
+    "incremental": true,
+    "tsBuildInfoFile": "./dist/build.build-info"
   },
   "files": ["src/index.ts"],
+  "include": ["src/*.ts"],
   "references": [{ "path": "../todel" }]
 }
