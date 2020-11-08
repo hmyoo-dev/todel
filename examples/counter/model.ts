@@ -1,4 +1,4 @@
-import { actionCreator, ActionEvent, Controller, Service } from "todel";
+import { actionCreator, ActionEventHandler, Controller, Service } from "todel";
 
 // actions
 export const reset = actionCreator("reset");
@@ -34,18 +34,20 @@ export type CounterServiceHolder = {
 export class CounterController implements Controller {
   constructor(private counterService: CounterService) {}
 
-  listener({ action }: ActionEvent): void {
-    if (increase.match(action)) {
-      this.counterService.increase();
-      return;
-    }
-    if (decrease.match(action)) {
-      this.counterService.decrease();
-      return;
-    }
-    if (reset.match(action)) {
-      this.counterService.reset();
-      return;
-    }
+  getHandler(): ActionEventHandler {
+    return ({ action }) => {
+      if (increase.match(action)) {
+        this.counterService.increase();
+        return;
+      }
+      if (decrease.match(action)) {
+        this.counterService.decrease();
+        return;
+      }
+      if (reset.match(action)) {
+        this.counterService.reset();
+        return;
+      }
+    };
   }
 }

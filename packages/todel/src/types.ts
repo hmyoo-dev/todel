@@ -76,7 +76,7 @@ export interface ActionEventHandler<P = unknown, M extends Meta = Meta> {
 }
 
 export interface Controller {
-  listener: ActionEventHandler;
+  getHandler(): ActionEventHandler;
 }
 
 /** Store types */
