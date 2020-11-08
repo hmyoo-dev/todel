@@ -4,7 +4,6 @@ import type {
   Func,
   Guard,
   Meta,
-  PayloadAction,
   PrepareActionCreator,
 } from "./types";
 
@@ -17,7 +16,7 @@ export function actionCreator(
   type: string,
   meta: Meta = {}
 ): ActionCreator<unknown, Meta> {
-  function creator(payload: unknown): PayloadAction<unknown, Meta> {
+  function creator(payload: unknown): Action<unknown, Meta> {
     return {
       type,
       payload,
@@ -41,7 +40,7 @@ export function prepareActionCreator(
   prepare: Func<unknown, unknown>,
   meta: Meta = {}
 ): PrepareActionCreator<unknown, unknown, Meta> {
-  function creator(param: unknown): PayloadAction<unknown, Meta> {
+  function creator(param: unknown): Action<unknown, Meta> {
     return {
       type,
       payload: prepare(param),
@@ -60,7 +59,7 @@ function applyActionCreator<T extends ActionCreator<unknown, Meta>>(
   type: string,
   creator: Func<unknown, unknown>
 ): T {
-  type Matcher = Guard<Action, PayloadAction<unknown, Meta>>;
+  type Matcher = Guard<Action, Action<unknown, Meta>>;
 
   const result = creator as T;
   result.type = type;
