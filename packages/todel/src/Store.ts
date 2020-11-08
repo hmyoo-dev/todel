@@ -1,3 +1,4 @@
+import { combineActionEventHandlers } from "./controllerHelpers";
 import { PubSub } from "./PubSub";
 import type {
   Action,
@@ -69,21 +70,15 @@ export class Store<S extends ServiceRepo> implements JsonSerializable {
       controller.getHandler().bind(controller)
     );
 
+    const combinedListener = combineActionEventHandlers(handlers);
+
     this.actionEmitter.subscribe((action) => {
       try {
-        const promiseResults = handlers
-          .map((listener) =>
-            listener({
-              action,
-              dispatch: this.dispatch,
-              emitError: this.errorHandler,
-            })
-          )
-          .filter(
-            (result): result is Promise<void> => result instanceof Promise
-          );
-
-        Promise.all(promiseResults).catch(this.errorHandler);
+        combinedListener({
+          action,
+          dispatch: this.dispatch,
+          emitError: this.errorHandler,
+        }).catch(this.errorHandler);
       } catch (e) {
         this.errorHandler(e);
       }
