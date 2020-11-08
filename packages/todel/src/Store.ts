@@ -65,13 +65,13 @@ export class Store<S extends ServiceRepo> implements JsonSerializable {
   }
 
   private init(): void {
-    const listeners = this.controllers.map((controller) =>
-      controller.listener.bind(controller)
+    const handlers = this.controllers.map((controller) =>
+      controller.getHandler().bind(controller)
     );
 
     this.actionEmitter.subscribe((action) => {
       try {
-        const promiseResults = listeners
+        const promiseResults = handlers
           .map((listener) =>
             listener({
               action,

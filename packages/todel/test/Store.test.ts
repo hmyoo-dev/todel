@@ -1,12 +1,12 @@
-import { Store } from "../src/Store";
-import { Service } from "../src/Service";
-import type {
-  Consumer,
-  ErrorEmitter,
-  Controller,
-  ActionEvent,
-} from "../src/types";
 import { actionCreator } from "../src/actionCreators";
+import { Service } from "../src/Service";
+import { Store } from "../src/Store";
+import type {
+  ActionEventHandler,
+  Consumer,
+  Controller,
+  ErrorEmitter,
+} from "../src/types";
 
 describe("Store", () => {
   it("can be created by provider", () => {
@@ -141,25 +141,27 @@ class CounterService extends Service<{ count: number }> {
 class CounterController implements Controller {
   constructor(private counterService: CounterService) {}
 
-  listener({ action, emitError, dispatch }: ActionEvent): void | Promise<void> {
-    if (increase.match(action)) {
-      return this.counterService.increase();
-    }
-    if (decrease.match(action)) {
-      return this.counterService.decrease();
-    }
-    if (triggerDecrease.match(action)) {
-      return dispatch(decrease());
-    }
-    if (throwError.match(action)) {
-      throw new Error("test");
-    }
-    if (throwAsyncError.match(action)) {
-      return this.throwAsync();
-    }
-    if (emitErr.match(action)) {
-      return this.emitError(emitError);
-    }
+  getHandler(): ActionEventHandler {
+    return ({ action, emitError, dispatch }) => {
+      if (increase.match(action)) {
+        return this.counterService.increase();
+      }
+      if (decrease.match(action)) {
+        return this.counterService.decrease();
+      }
+      if (triggerDecrease.match(action)) {
+        return dispatch(decrease());
+      }
+      if (throwError.match(action)) {
+        throw new Error("test");
+      }
+      if (throwAsyncError.match(action)) {
+        return this.throwAsync();
+      }
+      if (emitErr.match(action)) {
+        return this.emitError(emitError);
+      }
+    };
   }
 
   async throwAsync(): Promise<void> {
