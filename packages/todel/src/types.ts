@@ -36,19 +36,16 @@ export interface Subscribable<Value> {
 }
 
 /** Action */
-export interface Action {
+export interface Action<Payload = unknown, M extends Meta = Meta> {
   type: string;
-}
-
-export interface PayloadAction<Payload, M = Meta> extends Action {
   payload: Payload;
   meta: M;
 }
 
 export interface ActionCreator<Payload = void, M extends Meta = Meta> {
   type: string;
-  (payload: Payload): PayloadAction<Payload, M>;
-  match: Guard<Action, PayloadAction<Payload, M>>;
+  (payload: Payload): Action<Payload, M>;
+  match: Guard<Action, Action<Payload, M>>;
 }
 
 export interface PrepareActionCreator<
@@ -56,7 +53,7 @@ export interface PrepareActionCreator<
   Payload = void,
   M extends Meta = Meta
 > extends ActionCreator<Payload, M> {
-  (param: Param): PayloadAction<Payload, M>;
+  (param: Param): Action<Payload, M>;
 }
 
 /** Service types */
@@ -68,14 +65,18 @@ export type AnyService = Service<any>;
 export type ServiceRepo = Record<string, AnyService>;
 
 /** Controller types */
-export interface ActionEvent {
-  action: Action;
+export interface ActionEvent<P = unknown, M extends Meta = Meta> {
+  action: Action<P, M>;
   emitError: Consumer<Error>;
   dispatch: Consumer<Action>;
 }
 
+export interface ActionEventHandler<P = unknown, M extends Meta = Meta> {
+  (actionEvent: ActionEvent<P, M>): void | Promise<unknown>;
+}
+
 export interface Controller {
-  listener(event: ActionEvent): void | Promise<unknown>;
+  listener: ActionEventHandler;
 }
 
 /** Store types */
