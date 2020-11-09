@@ -13,5 +13,10 @@
     "build:watch": "tsc --build --watch",
     "test": "jest",
     "coverage": "jest --coverage"
-  }
+  },
+  "files": [
+    "dist",
+    "src",
+    "README.md"
+  ]
 }
