@@ -1,9 +1,13 @@
 {
   "name": "todel",
   "version": "0.1.0",
-  "license": "MIT",
   "main": "dist/index.js",
+  "types": "dist/index.d.js",
+  "repository": "https://github.com/hmyoo-dev/todel.git",
+  "author": "Hyeongmin Yoo <hmyoo.dev@gmail.com>",
+  "license": "MIT",
   "scripts": {
+    "prepublish": "yarn test && yarn build",
     "type-check": "tsc --noEmit",
     "build": "tsc --build",
     "build:watch": "tsc --build --watch",
