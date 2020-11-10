@@ -65,26 +65,25 @@ export type AnyService = Service<any>;
 export type ServiceRepo = Record<string, AnyService>;
 
 /** Controller types */
-export interface ActionEvent<P = unknown, M extends Meta = Meta> {
-  action: Action<P, M>;
+export interface ActionEffector {
   emitError: Consumer<Error>;
   dispatch: Consumer<Action>;
 }
 
 export interface ActionEventHandlerOption<P, M extends Meta = Meta> {
   matcher: Guard<Action, Action<P, M>>;
-  handler: ActionEventHandler<P, M>;
+  handler: ActionHandler<P, M>;
 }
-export interface ActionEventHandler<P = unknown, M extends Meta = Meta> {
-  (actionEvent: ActionEvent<P, M>): void | Promise<unknown>;
+export interface ActionHandler<P = unknown, M extends Meta = Meta> {
+  (action: Action<P, M>, effector: ActionEffector): void | Promise<unknown>;
 }
 
 export interface CombinedActionEventHandler {
-  (actionEvent: ActionEvent<unknown, Meta>): Promise<unknown>;
+  (action: Action<unknown, Meta>, effector: ActionEffector): Promise<unknown>;
 }
 
 export interface Controller {
-  getHandler(): ActionEventHandler;
+  getHandler(): ActionHandler;
 }
 
 /** Store types */

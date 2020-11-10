@@ -1,51 +1,48 @@
 import { actionCreator } from "../src";
-import { actionEventHandler, anyMatchActions } from "../src/controllerHelpers";
-import { Action, ActionEvent } from "../src/types";
+import { actionHandler, anyMatchActions } from "../src/controllerHelpers";
+import { ActionEffector } from "../src/types";
 
 describe("createActionEventHandler", () => {
   const name = "foo";
   const email = "foo@bar.com";
 
   it("should call handler with type guard", (done) => {
-    const handler = actionEventHandler({
+    const handler = actionHandler({
       matcher: testName.match,
-      handler: ({ action }) => {
+      handler: (action) => {
         expect(action.payload.name).toEqual(name);
         done();
       },
     });
 
-    const event = mockActionEvent(testName({ name }));
-
-    handler(event);
+    handler(testName({ name }), mockActionEffector());
   });
 
   it("could take multiple action creators", (done) => {
-    const handler = actionEventHandler({
+    const handler = actionHandler({
       matcher: anyMatchActions<{ name: string }>(
         testName.match,
         testUser.match
       ),
-      handler: ({ action }) => {
+      handler: (action) => {
         action.payload;
         expect(action.payload.name).toEqual(name);
         done();
       },
     });
 
-    const event = mockActionEvent(testUser({ name, email }));
-    handler(event);
+    handler(testUser({ name, email }), mockActionEffector());
   });
 
   it("shouldn't call handler when not matched action", () => {
     const handler = jest.fn();
 
-    const listener = actionEventHandler({
+    const resultHandler = actionHandler({
       matcher: testName.match,
       handler,
     });
 
-    listener(mockActionEvent(testEmail({ email })));
+    resultHandler(testEmail({ email }), mockActionEffector());
 
     expect(handler).not.toHaveBeenCalled();
   });
@@ -55,9 +52,8 @@ const testName = actionCreator<{ name: string }>("testName");
 const testEmail = actionCreator<{ email: string }>("testEmail");
 const testUser = actionCreator<{ name: string; email: string }>("testUser");
 
-function mockActionEvent(action: Action): ActionEvent {
+function mockActionEffector(): ActionEffector {
   return {
-    action,
     dispatch: jest.fn(),
     emitError: jest.fn(),
   };

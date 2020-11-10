@@ -2,7 +2,7 @@ import { actionCreator } from "../src/actionCreators";
 import { Service } from "../src/Service";
 import { Store } from "../src/Store";
 import type {
-  ActionEventHandler,
+  ActionHandler,
   Consumer,
   Controller,
   ErrorEmitter,
@@ -141,8 +141,8 @@ class CounterService extends Service<{ count: number }> {
 class CounterController implements Controller {
   constructor(private counterService: CounterService) {}
 
-  getHandler(): ActionEventHandler {
-    return ({ action, emitError, dispatch }) => {
+  getHandler(): ActionHandler {
+    return (action, { emitError, dispatch }) => {
       if (increase.match(action)) {
         return this.counterService.increase();
       }
