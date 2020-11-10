@@ -1,7 +1,7 @@
 import {
-  ActionEventHandler,
-  actionEventHandler,
-  combineActionEventHandlers,
+  actionHandler,
+  ActionHandler,
+  combineActionHandlers,
   Controller,
 } from "todel";
 import { init, postNote, updateDraft } from "./actions";
@@ -14,26 +14,22 @@ export class NoteController implements Controller {
     private notificationService: NotificationService
   ) {}
 
-  getHandler(): ActionEventHandler {
-    return combineActionEventHandlers([
-      this.init,
-      this.updateDraft,
-      this.postNote,
-    ]);
+  getHandler(): ActionHandler {
+    return combineActionHandlers([this.init, this.updateDraft, this.postNote]);
   }
 
   // handlers
-  init = actionEventHandler({
+  init = actionHandler({
     matcher: init.match,
     handler: () => this.notesService.fetchNotes(),
   });
 
-  updateDraft = actionEventHandler({
+  updateDraft = actionHandler({
     matcher: updateDraft.match,
-    handler: ({ action }) => this.notesService.updateDraft(action.payload),
+    handler: (action) => this.notesService.updateDraft(action.payload),
   });
 
-  postNote = actionEventHandler({
+  postNote = actionHandler({
     matcher: postNote.match,
     handler: () => {
       const { posting, draft } = this.notesService.state;

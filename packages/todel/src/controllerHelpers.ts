@@ -1,35 +1,38 @@
 import {
   Action,
-  ActionEvent,
-  ActionEventHandler,
   ActionEventHandlerOption,
-  CombinedActionEventHandler,
+  ActionHandler,
+  CombinedActionEventHandler as CombinedActionHandler,
   Guard,
   Meta,
 } from "./types";
 
-export function actionEventHandler<P, M extends Meta = Meta>(
+export function actionHandler<P, M extends Meta = Meta>(
   option: ActionEventHandlerOption<P, M>
-): ActionEventHandler {
+): ActionHandler {
   const { matcher, handler } = option;
 
-  return (actionEvent: ActionEvent): void | Promise<unknown> => {
-    if (matcher(actionEvent.action)) {
-      return handler(actionEvent as ActionEvent<P, M>);
+  const actionHandler: ActionHandler = (action, effector) => {
+    if (matcher(action)) {
+      return handler(action, effector);
     }
   };
+
+  return actionHandler;
 }
 
-export function combineActionEventHandlers(
-  handlers: ActionEventHandler[]
-): CombinedActionEventHandler {
-  return (actionEvent: ActionEvent): Promise<unknown> => {
+export function combineActionHandlers(
+  handlers: ActionHandler[]
+): CombinedActionHandler {
+  const combineActionHandler: CombinedActionHandler = (action, effector) => {
     const promiseResults = handlers
-      .map((handler) => handler(actionEvent))
+      .map((handler) => handler(action, effector))
       .filter((result) => result instanceof Promise);
 
     return Promise.all(promiseResults);
   };
+
+  return combineActionHandler;
 }
 
 export function anyMatchActions<P, M extends Meta = Meta>(

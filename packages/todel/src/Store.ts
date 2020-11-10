@@ -1,7 +1,8 @@
-import { combineActionEventHandlers } from "./controllerHelpers";
+import { combineActionHandlers } from "./controllerHelpers";
 import { PubSub } from "./PubSub";
 import type {
   Action,
+  ActionEffector,
   Consumer,
   Controller,
   JsonSerializable,
@@ -70,15 +71,15 @@ export class Store<S extends ServiceRepo> implements JsonSerializable {
       controller.getHandler().bind(controller)
     );
 
-    const combinedListener = combineActionEventHandlers(handlers);
+    const combinedHandler = combineActionHandlers(handlers);
+    const effector: ActionEffector = Object.freeze({
+      dispatch: this.dispatch,
+      emitError: this.errorHandler,
+    });
 
     this.actionEmitter.subscribe((action) => {
       try {
-        combinedListener({
-          action,
-          dispatch: this.dispatch,
-          emitError: this.errorHandler,
-        }).catch(this.errorHandler);
+        combinedHandler(action, effector).catch(this.errorHandler);
       } catch (e) {
         this.errorHandler(e);
       }
