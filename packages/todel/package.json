@@ -2,14 +2,15 @@
   "name": "todel",
   "version": "0.3.0",
   "main": "dist/index.js",
-  "types": "dist/index.d.js",
+  "types": "dist",
+  "typings": "dist",
   "repository": "https://github.com/hmyoo-dev/todel.git",
   "author": "Hyeongmin Yoo <hmyoo.dev@gmail.com>",
   "license": "MIT",
   "scripts": {
     "prepublish": "yarn test && yarn build",
     "type-check": "tsc --noEmit",
-    "build": "tsc --build",
+    "build": "rm -rf ./dist && tsc --build",
     "build:watch": "tsc --build --watch",
     "test": "jest",
     "coverage": "jest --coverage"
