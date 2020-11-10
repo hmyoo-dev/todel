@@ -1,14 +1,14 @@
 import {
   Action,
-  ActionEventHandlerOption,
   ActionHandler,
-  CombinedActionEventHandler as CombinedActionHandler,
+  ActionHandlerOption,
+  CombinedActionHandler,
   Guard,
   Meta,
 } from "./types";
 
 export function actionHandler<P, M extends Meta = Meta>(
-  option: ActionEventHandlerOption<P, M>
+  option: ActionHandlerOption<P, M>
 ): ActionHandler {
   const { matcher, handler } = option;
 

@@ -1,4 +1,4 @@
-import { actionCreator } from "../src";
+import { actionCreator } from "../src/actionCreators";
 import { actionHandler, anyMatchActions } from "../src/controllerHelpers";
 import { ActionEffector } from "../src/types";
 
