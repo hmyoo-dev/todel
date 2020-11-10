@@ -70,7 +70,7 @@ export interface ActionEffector {
   dispatch: Consumer<Action>;
 }
 
-export interface ActionEventHandlerOption<P, M extends Meta = Meta> {
+export interface ActionHandlerOption<P, M extends Meta = Meta> {
   matcher: Guard<Action, Action<P, M>>;
   handler: ActionHandler<P, M>;
 }
@@ -78,7 +78,7 @@ export interface ActionHandler<P = unknown, M extends Meta = Meta> {
   (action: Action<P, M>, effector: ActionEffector): void | Promise<unknown>;
 }
 
-export interface CombinedActionEventHandler {
+export interface CombinedActionHandler {
   (action: Action<unknown, Meta>, effector: ActionEffector): Promise<unknown>;
 }
 

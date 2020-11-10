@@ -4,7 +4,6 @@
     "jsx": "react",
     "outDir": "./dist",
     "declaration": true,
-    "declarationDir": "./dist",
     "rootDir": "./src",
     "incremental": true,
     "tsBuildInfoFile": "./dist/build.build-info"
