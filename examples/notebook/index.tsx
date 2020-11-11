@@ -2,7 +2,7 @@ import Axios from "axios";
 import React, { FC, useEffect } from "react";
 import { render } from "react-dom";
 import { Store } from "todel";
-import { StoreProvider } from "todel-react";
+import { StoreProvider } from "@todel/react";
 import { logStore } from "../utils/logStore";
 import { NoteForm } from "./container/NoteForm";
 import { NoteList } from "./container/NoteList";

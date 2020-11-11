@@ -1,5 +1,5 @@
 import React, { FC } from "react";
-import { shallowEqual, useServiceState } from "todel-react";
+import { shallowEqual, useServiceState } from "@todel/react";
 import { selectNotesService } from "../model/NotesService";
 
 export const NoteList: FC = () => {

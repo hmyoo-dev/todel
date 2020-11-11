@@ -1,7 +1,7 @@
 import React, { FC } from "react";
 import { render } from "react-dom";
 import { Store } from "todel";
-import { StoreProvider } from "todel-react";
+import { StoreProvider } from "@todel/react";
 import { Counter } from "./Counter";
 import {
   CounterController,
