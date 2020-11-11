@@ -1,5 +1,5 @@
 import React, { FC } from "react";
-import { useServiceState } from "todel-react";
+import { useServiceState } from "@todel/react";
 import { selectNotificationService } from "../model/NotificationService";
 
 export const NotificationBar: FC = () => {

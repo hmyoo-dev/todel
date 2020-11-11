@@ -1,5 +1,5 @@
 import React, { FC } from "react";
-import { useDispatch, useServiceState } from "todel-react";
+import { useDispatch, useServiceState } from "@todel/react";
 import { CounterServiceHolder, decrease, increase, reset } from "./model";
 
 export const Counter: FC = () => {

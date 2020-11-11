@@ -1,5 +1,5 @@
 import React, { FC, useEffect, useState } from "react";
-import { shallowEqual, useDispatch, useServiceState } from "todel-react";
+import { shallowEqual, useDispatch, useServiceState } from "@todel/react";
 import { postNote, updateDraft } from "../model/actions";
 import { selectNotesService } from "../model/NotesService";
 
