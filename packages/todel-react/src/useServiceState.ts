@@ -1,9 +1,9 @@
 import { useContext, useEffect, useRef, useState } from "react";
-import { Service } from "todel";
+import { IService } from "todel";
 import { StoreContext } from "./StoreContext";
 
 export interface ServiceSelector<Repo, State> {
-  (repo: Repo): Service<State>;
+  (repo: Repo): IService<State>;
 }
 
 export interface StateSelector<State, Result> {
