@@ -60,6 +60,11 @@ export interface PrepareActionCreator<
 export interface StateModifier<State> {
   (current: State): State;
 }
+
+export interface IService<State> extends Subscribable<State>, JsonSerializable {
+  state: State;
+}
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type AnyService = Service<any>;
 export type ServiceRepo = Record<string, AnyService>;

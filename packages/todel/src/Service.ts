@@ -1,15 +1,13 @@
 import { PubSub } from "./PubSub";
 import type {
-  JsonSerializable,
-  ToJsonOption,
-  StateModifier,
-  Subscribable,
-  Subscription,
   Consumer,
+  IService,
+  StateModifier,
+  Subscription,
+  ToJsonOption,
 } from "./types";
 
-export abstract class Service<State>
-  implements Subscribable<State>, JsonSerializable {
+export abstract class Service<State> implements IService<State> {
   constructor(private _state: State) {}
   private pubSub = new PubSub<State>();
 
