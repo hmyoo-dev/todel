@@ -27,14 +27,9 @@ export class Store<S> implements JsonSerializable {
   constructor(payloadOrProvider: PayloadOrProvider<S>) {
     const payload = getPayload(payloadOrProvider);
 
-    const {
-      services = {},
-      atoms,
-      controllers,
-      errorHandler = defaultErrorHandler,
-    } = payload;
+    const { atoms, controllers, errorHandler = defaultErrorHandler } = payload;
 
-    this._atoms = Object.freeze(atoms ?? services) as S;
+    this._atoms = Object.freeze(atoms);
     this.controllers = Object.freeze(controllers);
     this.errorHandler = errorHandler.bind(this);
 
