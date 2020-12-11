@@ -56,7 +56,7 @@ export interface PrepareActionCreator<
   (param: Param): Action<Payload, M>;
 }
 
-/** Service types */
+/** Atom types */
 export interface StateModifier<State> {
   (current: State): State;
 }
