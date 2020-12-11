@@ -92,14 +92,15 @@ export interface Controller {
 }
 
 /** Store types */
-export interface StorePayload<S extends ServiceRepo> {
-  services: S;
+export interface StorePayload<S> {
+  services?: S;
+  atoms?: S;
   controllers: Controller[];
   errorHandler?: Consumer<unknown>;
 }
 
-export interface StorePayloadProvider<S extends ServiceRepo> {
+export interface StorePayloadProvider<S> {
   (): StorePayload<S>;
 }
 
-export type AnyStore = Store<ServiceRepo>;
+export type AnyStore = Store<unknown>;

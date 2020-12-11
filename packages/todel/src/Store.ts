@@ -6,15 +6,15 @@ import type {
   Consumer,
   Controller,
   JsonSerializable,
-  ServiceRepo,
   StorePayload,
   StorePayloadProvider,
   Subscription,
   ToJsonOption,
 } from "./types";
 
-export class Store<S extends ServiceRepo> implements JsonSerializable {
-  private readonly _services: S;
+type PayloadOrProvider<S> = StorePayload<S> | StorePayloadProvider<S>;
+export class Store<S> implements JsonSerializable {
+  private readonly _atoms: S;
   private readonly controllers: readonly Controller[];
   private readonly errorHandler: (this: this, err: unknown) => void;
   private readonly actionEmitter = new PubSub<Action>();
@@ -24,19 +24,17 @@ export class Store<S extends ServiceRepo> implements JsonSerializable {
   // So for keeping actions order, dispatch() publish outerActionEmitter first.
   private readonly outerActionEmitter = new PubSub<Action>();
 
-  constructor(payloadOrProvider: StorePayload<S> | StorePayloadProvider<S>) {
-    const payload =
-      typeof payloadOrProvider === "function"
-        ? payloadOrProvider()
-        : payloadOrProvider;
+  constructor(payloadOrProvider: PayloadOrProvider<S>) {
+    const payload = getPayload(payloadOrProvider);
 
     const {
-      services,
+      services = {},
+      atoms,
       controllers,
       errorHandler = defaultErrorHandler,
     } = payload;
 
-    this._services = Object.freeze(services);
+    this._atoms = Object.freeze(atoms ?? services) as S;
     this.controllers = Object.freeze(controllers);
     this.errorHandler = errorHandler.bind(this);
 
@@ -48,8 +46,12 @@ export class Store<S extends ServiceRepo> implements JsonSerializable {
     this.actionEmitter.publish(action);
   };
 
+  get atoms(): S {
+    return this._atoms;
+  }
+
   get services(): S {
-    return this._services;
+    return this.atoms;
   }
 
   subscribeAction(subscriber: Consumer<Action>): Subscription {
@@ -59,6 +61,7 @@ export class Store<S extends ServiceRepo> implements JsonSerializable {
   toJson(option?: ToJsonOption): Record<string, unknown> {
     const result: Record<string, unknown> = {};
 
+    // TODO: atoms is recursive.
     Object.entries(this.services).forEach(([key, service]) => {
       result[key] = service.toJson(option);
     });
@@ -89,4 +92,11 @@ export class Store<S extends ServiceRepo> implements JsonSerializable {
 
 function defaultErrorHandler(error: unknown): void {
   throw error;
+}
+
+function getPayload<S>(
+  payloadOrProvider: PayloadOrProvider<S>
+): StorePayload<S> {
+  if (typeof payloadOrProvider === "function") return payloadOrProvider();
+  return payloadOrProvider;
 }
