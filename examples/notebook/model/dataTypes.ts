@@ -9,7 +9,7 @@ export interface NoteDraft {
   content: string;
 }
 
-export interface Notification {
+export interface Notice {
   id: number;
   message: string;
 }

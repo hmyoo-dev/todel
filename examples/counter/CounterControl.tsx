@@ -1,12 +1,12 @@
+import { useAtom, useDispatch } from "@todel/react";
 import React, { FC } from "react";
-import { useDispatch, useServiceState } from "@todel/react";
-import { CounterServiceHolder, decrease, increase, reset } from "./model";
+import { CounterHolder, decrease, increase, reset } from "./model";
 
-export const Counter: FC = () => {
+export const CounterControl: FC = () => {
   const dispatch = useDispatch();
 
-  const count = useServiceState(
-    (repo: CounterServiceHolder) => repo.counter,
+  const count = useAtom(
+    (repo: CounterHolder) => repo.counter,
     (state) => state.count
   );
 

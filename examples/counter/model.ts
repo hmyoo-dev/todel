@@ -1,4 +1,4 @@
-import { actionCreator, ActionHandler, Controller, Service } from "todel";
+import { actionCreator, ActionHandler, Atom, Controller } from "todel";
 
 // actions
 export const reset = actionCreator("reset");
@@ -10,9 +10,9 @@ export interface CounterState {
   count: number;
 }
 
-export class CounterService extends Service<CounterState> {
-  constructor() {
-    super({ count: 0 });
+export class Counter extends Atom<CounterState> {
+  static fromCount(count: number): Counter {
+    return new Counter({ count });
   }
 
   increase(): void {
@@ -26,26 +26,26 @@ export class CounterService extends Service<CounterState> {
   }
 }
 
-export type CounterServiceHolder = {
-  counter: CounterService;
-};
+export interface CounterHolder {
+  counter: Counter;
+}
 
 // controller
 export class CounterController implements Controller {
-  constructor(private counterService: CounterService) {}
+  constructor(private counter: Counter) {}
 
   getHandler(): ActionHandler {
     return (action) => {
       if (increase.match(action)) {
-        this.counterService.increase();
+        this.counter.increase();
         return;
       }
       if (decrease.match(action)) {
-        this.counterService.decrease();
+        this.counter.decrease();
         return;
       }
       if (reset.match(action)) {
-        this.counterService.reset();
+        this.counter.reset();
         return;
       }
     };

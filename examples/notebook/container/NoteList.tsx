@@ -1,10 +1,10 @@
+import { shallowEqual, useAtom } from "@todel/react";
 import React, { FC } from "react";
-import { shallowEqual, useServiceState } from "@todel/react";
-import { selectNotesService } from "../model/NotesService";
+import { selectNotesAtom } from "../model/atom/note/NotesAtom";
 
 export const NoteList: FC = () => {
-  const { notes, fetching } = useServiceState(
-    selectNotesService,
+  const { notes, fetching } = useAtom(
+    selectNotesAtom,
     ({ notes, fetching }) => ({ notes, fetching }),
     shallowEqual
   );
