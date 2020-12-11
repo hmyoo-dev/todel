@@ -1,7 +1,10 @@
 import { AnyStore } from "todel";
 
 export function logStore(store: AnyStore): void {
-  const servicePairs = Array.from(Object.entries(store.services));
+  const servicePairs = Array.from(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    Object.entries(store.services as Record<string, any>)
+  );
 
   function getState(): Record<string, unknown> {
     return servicePairs.reduce(

@@ -1,5 +1,4 @@
 import { actionCreator } from "../src/actionCreators";
-import { Service } from "../src/Service";
 import { Store } from "../src/Store";
 import type {
   ActionHandler,
@@ -7,29 +6,30 @@ import type {
   Controller,
   ErrorEmitter,
 } from "../src/types";
+import { CounterAtom } from "./fixtures/Atom.fixtures";
 
 describe("Store", () => {
   it("can be created by provider", () => {
     const store = new Store(() => {
-      const counter = new CounterService({ count: 10 });
+      const counter = new CounterAtom({ count: 10 });
       return {
-        services: { counter },
+        atoms: { counter },
         controllers: [new CounterController(counter)],
       };
     });
 
-    expect(store.services.counter.state.count).toEqual(10);
+    expect(store.atoms.counter.data.count).toEqual(10);
   });
 
   it("should update state when dispatch a action", () => {
     const store = createStore();
     const { counter } = store.services;
 
-    expect(counter.state.count).toEqual(0);
+    expect(counter.data.count).toEqual(0);
 
     store.dispatch(increase());
 
-    expect(counter.state.count).toEqual(1);
+    expect(counter.data.count).toEqual(1);
   });
 
   it("can subscribe actions", () => {
@@ -127,27 +127,17 @@ const throwError = actionCreator("throwError");
 const throwAsyncError = actionCreator("throwAsyncError");
 const emitErr = actionCreator("emitError");
 
-// services
-class CounterService extends Service<{ count: number }> {
-  increase(): void {
-    this.updateState((state) => ({ ...state, count: state.count + 1 }));
-  }
-  decrease(): void {
-    this.updateState((state) => ({ ...state, count: state.count - 1 }));
-  }
-}
-
 // controllers
 class CounterController implements Controller {
-  constructor(private counterService: CounterService) {}
+  constructor(private counter: CounterAtom) {}
 
   getHandler(): ActionHandler {
     return (action, { emitError, dispatch }) => {
       if (increase.match(action)) {
-        return this.counterService.increase();
+        return this.counter.increase();
       }
       if (decrease.match(action)) {
-        return this.counterService.decrease();
+        return this.counter.decrease();
       }
       if (triggerDecrease.match(action)) {
         return dispatch(decrease());
@@ -174,15 +164,15 @@ class CounterController implements Controller {
   }
 }
 
-type ServiceRepo = {
-  counter: CounterService;
-};
+interface AtomsRepo {
+  counter: CounterAtom;
+}
 
-function createStore(errorHandler?: Consumer<unknown>): Store<ServiceRepo> {
-  const counter = new CounterService({ count: 0 });
+function createStore(errorHandler?: Consumer<unknown>): Store<AtomsRepo> {
+  const counter = new CounterAtom({ count: 0 });
 
-  return new Store<ServiceRepo>({
-    services: { counter },
+  return new Store<AtomsRepo>({
+    atoms: { counter },
     controllers: [new CounterController(counter)],
     errorHandler,
   });

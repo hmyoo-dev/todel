@@ -17,6 +17,10 @@ export class CounterAtom extends Atom<CounterAtomState, CounterComputed> {
     this.updateState((state) => ({ ...state, count: state.count + 1 }));
   }
 
+  decrease(): void {
+    this.updateState((state) => ({ ...state, count: state.count - 1 }));
+  }
+
   get computed(): CounterComputed {
     return {
       getRest: (max) => max - this.state.count,
