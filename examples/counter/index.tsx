@@ -1,24 +1,20 @@
+import { StoreProvider } from "@todel/react";
 import React, { FC } from "react";
 import { render } from "react-dom";
 import { Store } from "todel";
-import { StoreProvider } from "@todel/react";
-import { Counter } from "./Counter";
-import {
-  CounterController,
-  CounterService,
-  CounterServiceHolder,
-} from "./model";
+import { CounterControl } from "./CounterControl";
+import { Counter, CounterController, CounterHolder } from "./model";
 
 const App: FC = () => {
-  const counter = new CounterService();
-  const store = new Store<CounterServiceHolder>({
-    services: { counter },
+  const counter = Counter.fromCount(0);
+  const store = new Store<CounterHolder>({
+    atoms: { counter },
     controllers: [new CounterController(counter)],
   });
 
   return (
     <StoreProvider store={store}>
-      <Counter />
+      <CounterControl />
     </StoreProvider>
   );
 };

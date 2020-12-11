@@ -1,34 +1,43 @@
+import { StoreProvider } from "@todel/react";
 import Axios from "axios";
 import React, { FC, useEffect } from "react";
 import { render } from "react-dom";
 import { Store } from "todel";
-import { StoreProvider } from "@todel/react";
-import { logStore } from "../utils/logStore";
 import { NoteForm } from "./container/NoteForm";
 import { NoteList } from "./container/NoteList";
 import { NotificationBar } from "./container/NotificationBar";
 import { init } from "./model/actions";
-import { NoteController } from "./model/NoteController";
-import { NotesService, NotesServiceHolder } from "./model/NotesService";
+import { NoteDraftAtom } from "./model/atom/note/NoteDraftAtom";
+import { NotePostAtom } from "./model/atom/note/NotePostAtom";
+import { NotesAtom } from "./model/atom/note/NotesAtom";
 import {
-  NotificationService,
-  NotificationServiceHolder,
-} from "./model/NotificationService";
+  NoticesAtom,
+  NoticesAtomHolder,
+} from "./model/atom/notice/NoticesAtom";
+import { NoteController } from "./model/NoteController";
+import { NoteAtomsHolder, NotesService } from "./model/service/NotesService";
+import { NoticesService } from "./model/service/NoticesService";
 
-type AppServiceRepo = NotesServiceHolder & NotificationServiceHolder;
+type AppAtoms = NoteAtomsHolder & NoticesAtomHolder;
 
 const App: FC = () => {
   const ajax = Axios.create();
+  const atoms: AppAtoms = {
+    note: {
+      notes: NotesAtom.empty(),
+      draft: NoteDraftAtom.empty(),
+      post: NotePostAtom.empty(),
+    },
+    notice: NoticesAtom.empty(),
+  };
 
-  const notesService = new NotesService(ajax);
-  const notificationService = new NotificationService();
+  const notesService = NotesService.fromNoteHolder(atoms, ajax);
+  const noticesService = new NoticesService(atoms.notice);
 
-  const store = new Store<AppServiceRepo>({
-    services: { notesService, notificationService },
-    controllers: [new NoteController(notesService, notificationService)],
+  const store = new Store<AppAtoms>({
+    atoms,
+    controllers: [new NoteController(notesService, noticesService)],
   });
-
-  logStore(store);
 
   useEffect(() => store.dispatch(init()));
 

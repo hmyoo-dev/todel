@@ -1,16 +1,14 @@
+import { useAtom, useDispatch } from "@todel/react";
 import React, { FC, useEffect, useState } from "react";
-import { shallowEqual, useDispatch, useServiceState } from "@todel/react";
 import { postNote, updateDraft } from "../model/actions";
-import { selectNotesService } from "../model/NotesService";
+import { selectNoteDraftAtom } from "../model/atom/note/NoteDraftAtom";
+import { selectNotePostAtom } from "../model/atom/note/NotePostAtom";
 
 export const NoteForm: FC = () => {
   const dispatch = useDispatch();
 
-  const { draft: storedDraft, posting } = useServiceState(
-    selectNotesService,
-    ({ draft, posting }) => ({ draft, posting }),
-    shallowEqual
-  );
+  const posting = useAtom(selectNotePostAtom, (data) => data.posting);
+  const storedDraft = useAtom(selectNoteDraftAtom, (data) => data.draft);
 
   const [title, setTitle] = useState(storedDraft.title);
   const [content, setContent] = useState(storedDraft.content);
