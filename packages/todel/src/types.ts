@@ -1,4 +1,3 @@
-import type { Service } from "./Service";
 import type { Store } from "./Store";
 
 /** Common types */
@@ -61,14 +60,6 @@ export interface StateModifier<State> {
   (current: State): State;
 }
 
-export interface IService<State> extends Subscribable<State>, JsonSerializable {
-  state: State;
-}
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type AnyService = Service<any>;
-export type ServiceRepo = Record<string, AnyService>;
-
 /** Controller types */
 export interface ActionEffector {
   emitError: Consumer<Error>;
@@ -93,8 +84,7 @@ export interface Controller {
 
 /** Store types */
 export interface StorePayload<S> {
-  services?: S;
-  atoms?: S;
+  atoms: S;
   controllers: Controller[];
   errorHandler?: Consumer<unknown>;
 }
