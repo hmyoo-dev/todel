@@ -1,20 +1,9 @@
-import { Atom } from "todel";
+import { AjaxAtom, idleAjaxAtomState } from "todel";
+import { NoteItem } from "../../dataTypes";
 
-export interface NotePostAtomState {
-  posting: boolean;
-}
-
-export class NotePostAtom extends Atom<NotePostAtomState> {
+export class NotePostAtom extends AjaxAtom<NoteItem | null> {
   static empty(): NotePostAtom {
-    return new NotePostAtom({ posting: false });
-  }
-
-  postStarted(): void {
-    this.updateState((state) => ({ ...state, posting: true }));
-  }
-
-  postEnd(): void {
-    this.updateState((state) => ({ ...state, posting: false }));
+    return new NotePostAtom(idleAjaxAtomState(null));
   }
 }
 
