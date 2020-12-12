@@ -7,7 +7,7 @@
     "version": {
       "allowBranch": "main",
       "noPrivate": true,
-      "ignoreChanges": ["**/tests/**", "**/*.md"]
+      "ignoreChanges": ["**/test/**", "**/*.md", "**/package.json"]
     }
   }
 }
