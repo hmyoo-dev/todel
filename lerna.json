@@ -6,7 +6,8 @@
   "command": {
     "version": {
       "allowBranch": "main",
-      "noPrivate": true
+      "noPrivate": true,
+      "ignoreChanges": ["**/tests/**", "**/*.md"]
     }
   }
 }
