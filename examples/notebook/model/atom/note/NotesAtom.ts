@@ -1,35 +1,14 @@
-import { Atom } from "todel";
+import { AjaxAtom, idleAjaxAtomState } from "todel";
 import { NoteItem } from "../../dataTypes";
 
-export interface NotesAtomState {
-  notes: NoteItem[];
-  fetching: boolean;
-}
-
-export class NotesAtom extends Atom<NotesAtomState> {
+export class NotesAtom extends AjaxAtom<NoteItem[]> {
   static empty(): NotesAtom {
-    return new NotesAtom({
-      notes: [],
-      fetching: false,
-    });
+    return new NotesAtom(idleAjaxAtomState([]));
   }
 
   appendNote(note: NoteItem): NoteItem {
-    this.updateState((state) => ({ ...state, notes: [...state.notes, note] }));
+    this.updateState((state) => ({ ...state, value: [...state.value, note] }));
     return note;
-  }
-
-  fetchStart(): void {
-    this.updateState((state) => ({ ...state, fetching: true }));
-  }
-
-  fetchDone(notes: NoteItem[]): NoteItem[] {
-    this.updateState((state) => ({ ...state, notes, fetching: false }));
-    return notes;
-  }
-
-  fetchFailed(): void {
-    this.updateState((state) => ({ ...state, notes: [], fetching: false }));
   }
 }
 

@@ -1,4 +1,5 @@
 import { AxiosInstance } from "axios";
+import { AjaxStatus } from "todel";
 import { NoteDraftAtom, NoteDraftAtomHolder } from "../atom/note/NoteDraftAtom";
 import { NotePostAtom, NotePostAtomHolder } from "../atom/note/NotePostAtom";
 import { NotesAtom, NotesAtomHolder } from "../atom/note/NotesAtom";
@@ -29,18 +30,17 @@ export class NotesService {
   }
 
   fetchNotes(): Promise<NoteItem[]> {
-    this.notes.fetchStart();
-
-    return this.ajax
-      .get<NoteItem[]>("/api/notebook/")
-      .then((response) => response.data)
-      .then((notes) => this.notes.fetchDone(notes));
+    return this.notes.request(
+      this.ajax
+        .get<NoteItem[]>("/api/notebook/")
+        .then((response) => response.data)
+    );
   }
 
   async postDraftNote(): Promise<NoteItem> {
     const { draft, isFulfilled } = this.noteDraft.data;
 
-    if (this.notePost.data.posting) {
+    if (this.notePost.data.status === AjaxStatus.Pending) {
       throw new Error("Please until posting is done");
     }
 
@@ -48,14 +48,13 @@ export class NotesService {
       throw new Error("Draft should not be empty");
     }
 
-    this.notePost.postStarted();
-
-    const note = await this.ajax
-      .post<NoteItem>("/api/notebook/", draft)
-      .then((response) => response.data);
+    const note = await this.notePost.request(
+      this.ajax
+        .post<NoteItem>("/api/notebook/", draft)
+        .then((response) => response.data)
+    );
 
     this.notes.appendNote(note);
-    this.notePost.postEnd();
     this.noteDraft.clearDraft();
 
     return note;

@@ -1,5 +1,6 @@
 import { useAtom, useDispatch } from "@todel/react";
 import React, { FC, useEffect, useState } from "react";
+import { AjaxStatus } from "todel";
 import { postNote, updateDraft } from "../model/actions";
 import { selectNoteDraftAtom } from "../model/atom/note/NoteDraftAtom";
 import { selectNotePostAtom } from "../model/atom/note/NotePostAtom";
@@ -7,7 +8,10 @@ import { selectNotePostAtom } from "../model/atom/note/NotePostAtom";
 export const NoteForm: FC = () => {
   const dispatch = useDispatch();
 
-  const posting = useAtom(selectNotePostAtom, (data) => data.posting);
+  const posting = useAtom(
+    selectNotePostAtom,
+    (data) => data.status === AjaxStatus.Pending
+  );
   const storedDraft = useAtom(selectNoteDraftAtom, (data) => data.draft);
 
   const [title, setTitle] = useState(storedDraft.title);
