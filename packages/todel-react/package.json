@@ -11,7 +11,7 @@
     "access": "public"
   },
   "scripts": {
-    "prepublish": "yarn test && yarn build",
+    "prepublish": "yarn build && yarn test",
     "type-check": "tsc --noEmit",
     "build": "rm -rf ./dist && tsc --build",
     "build:watch": "tsc --build --watch",
