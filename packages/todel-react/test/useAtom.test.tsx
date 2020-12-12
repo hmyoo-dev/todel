@@ -5,15 +5,15 @@ import {
 } from "@testing-library/react-hooks";
 import { Store } from "todel";
 import { useAtom } from "../src/useAtom";
-import { CounterAtomRepo, CounterState, increase, setCount } from "./fixtures";
-import { createAtomMockStore, createMockWrapper } from "./testHelpers";
+import { CounterRepo, CounterState, increase, setCount } from "./fixtures";
+import { createMockStore, createMockWrapper } from "./testHelpers";
 
 describe("useAtom", () => {
   type HookResult<R> = RenderHookResult<unknown, R>;
-  let store: Store<CounterAtomRepo>;
+  let store: Store<CounterRepo>;
 
   beforeEach(() => {
-    store = createAtomMockStore();
+    store = createMockStore();
   });
 
   describe("when use without data selector", () => {
@@ -29,7 +29,7 @@ describe("useAtom", () => {
     });
 
     function mountHookWithOutDataSelector(): HookResult<CounterState> {
-      return mountHook(() => useAtom((repo: CounterAtomRepo) => repo.counter));
+      return mountHook(() => useAtom((repo: CounterRepo) => repo.counter));
     }
   });
 
@@ -48,7 +48,7 @@ describe("useAtom", () => {
     it("should not trigger render when value is not changed", () => {
       const componentLogic = jest.fn().mockImplementation(() =>
         useAtom(
-          (repo: CounterAtomRepo) => repo.counter,
+          (repo: CounterRepo) => repo.counter,
           (counter) => counter.count
         )
       );
@@ -67,7 +67,7 @@ describe("useAtom", () => {
     function mountHookWithDataSelector(): HookResult<number> {
       return mountHook(() =>
         useAtom(
-          (repo: CounterAtomRepo) => repo.counter,
+          (repo: CounterRepo) => repo.counter,
           (counter) => counter.count + 10
         )
       );
@@ -76,7 +76,7 @@ describe("useAtom", () => {
 
   it("should throw error if store is not provided", () => {
     const { result } = renderHook(() =>
-      useAtom((repo: CounterAtomRepo) => repo.counter)
+      useAtom((repo: CounterRepo) => repo.counter)
     );
 
     expect(result.error).toBeInstanceOf(Error);
