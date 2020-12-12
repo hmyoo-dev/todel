@@ -1,5 +1,5 @@
+import { Atom } from "todel";
 import { withDraft } from "../src";
-import { Service } from "todel";
 
 describe(withDraft, () => {
   it("should return new state", () => {
@@ -23,14 +23,14 @@ describe(withDraft, () => {
     expect(result.user.name).toEqual("test");
   });
 
-  it("should work with Service.updateState", () => {
+  it("should work with Atom", () => {
     const initState = createState();
-    const service = new UserService(initState);
+    const service = new UserAtom(initState);
 
     service.setUser({ name: "test" });
 
     expect(initState.user).toBe(null);
-    expect(service.state.user?.name).toEqual("test");
+    expect(service.data.user?.name).toEqual("test");
   });
 });
 
@@ -43,7 +43,7 @@ interface State {
   flag: boolean;
 }
 
-class UserService extends Service<State> {
+class UserAtom extends Atom<State> {
   setUser(user: User): void {
     this.updateState(
       withDraft((state) => {
