@@ -1,3 +1,4 @@
+import { createAtomSelector } from "@todel/react";
 import { AjaxAtom, idleAjaxAtomState } from "todel";
 import { NoteItem } from "../../dataTypes";
 
@@ -18,6 +19,6 @@ export interface NotesAtomHolder {
   };
 }
 
-export function selectNotesAtom(repo: NotesAtomHolder): NotesAtom {
-  return repo.note.notes;
-}
+export const useNotesAtom = createAtomSelector(
+  (repo: NotesAtomHolder) => repo.note.notes
+);

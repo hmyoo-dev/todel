@@ -1,14 +1,9 @@
-import { shallowEqual, useAtom } from "@todel/react";
 import React, { FC } from "react";
 import { AjaxStatus } from "todel";
-import { selectNotesAtom } from "../model/atom/note/NotesAtom";
+import { useNotesAtom } from "../model/atom/note/NotesAtom";
 
 export const NoteList: FC = () => {
-  const { notes, status } = useAtom(
-    selectNotesAtom,
-    ({ value, status }) => ({ notes: value, status }),
-    shallowEqual
-  );
+  const { value: notes, status } = useNotesAtom();
 
   if (status === AjaxStatus.Pending) return <div>Loading...</div>;
 
