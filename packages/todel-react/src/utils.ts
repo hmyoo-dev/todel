@@ -1,6 +1,8 @@
 export function shallowEqual(prev: unknown, next: unknown): boolean {
+  if (prev === next) return true;
+
   if (!(prev instanceof Object) || !(next instanceof Object)) {
-    return prev === next;
+    return false;
   }
 
   for (const [key, value] of Object.entries(prev)) {
