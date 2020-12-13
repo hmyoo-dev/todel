@@ -1,3 +1,4 @@
+export * from "./createAtomSelector";
 export * from "./StoreContext";
 export * from "./StoreProvider";
 export * from "./useAtom";

@@ -1,6 +1,7 @@
 import { useContext, useEffect, useRef, useState } from "react";
 import { Atom } from "todel";
 import { StoreContext } from "./StoreContext";
+import { shallowEqual } from "./utils";
 
 export interface AtomSelector<Repo, State, Computed> {
   (repo: Repo): Atom<State, Computed>;
@@ -21,7 +22,7 @@ export function useAtom<Repo, Result, State, Computed = unknown>(
 export function useAtom(
   atomSelector: AtomSelector<unknown, unknown, unknown>,
   dataSelector: DataSelector<unknown, unknown> = (s) => s,
-  equalityFn: (prev: unknown, next: unknown) => boolean = (p, n) => p === n
+  equalityFn: (prev: unknown, next: unknown) => boolean = shallowEqual
 ): unknown {
   const store = useContext(StoreContext);
 
