@@ -1,3 +1,4 @@
+import { createAtomSelector } from "@todel/react";
 import { Atom } from "todel";
 import { NoteDraft } from "../../dataTypes";
 
@@ -41,9 +42,9 @@ export interface NoteDraftAtomHolder {
   };
 }
 
-export function selectNoteDraftAtom(repo: NoteDraftAtomHolder): NoteDraftAtom {
-  return repo.note.draft;
-}
+export const useNoteDraftAtom = createAtomSelector(
+  (repo: NoteDraftAtomHolder) => repo.note.draft
+);
 
 const emptyDraft: NoteDraft = {
   title: "",
