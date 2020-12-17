@@ -30,7 +30,7 @@ export class NotesService {
   }
 
   fetchNotes(): Promise<NoteItem[]> {
-    return this.notes.request(
+    return this.notes.updateWith(
       this.ajax
         .get<NoteItem[]>("/api/notebook/")
         .then((response) => response.data)
@@ -48,7 +48,7 @@ export class NotesService {
       throw new Error("Draft should not be empty");
     }
 
-    const note = await this.notePost.request(
+    const note = await this.notePost.updateWith(
       this.ajax
         .post<NoteItem>("/api/notebook/", draft)
         .then((response) => response.data)
