@@ -31,6 +31,14 @@ export class AuthorAtom extends AjaxAtom<Author | null> {
     });
   }
 
+  static failed(): AuthorAtom {
+    return new AuthorAtom({
+      value: null,
+      status: AjaxStatus.Failure,
+      error: new Error("Failed"),
+    });
+  }
+
   get defaultValue(): Author | null {
     return null;
   }

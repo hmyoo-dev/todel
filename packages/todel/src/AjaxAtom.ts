@@ -13,11 +13,17 @@ export interface AjaxAtomState<T> {
   error: unknown | null;
 }
 
+export interface AjaxAtomBaseData {
+  isPending(): boolean;
+  isDone(): boolean;
+  isFailed(): boolean;
+}
+
 export abstract class AjaxAtom<
   V,
   S extends AjaxAtomState<V> = AjaxAtomState<V>,
   C = unknown
-> extends Atom<S, C> {
+> extends Atom<S, AjaxAtomBaseData & C> {
   private _initValue: V;
 
   constructor(initState: S) {
@@ -27,6 +33,14 @@ export abstract class AjaxAtom<
 
   protected get defaultValue(): V {
     return this._initValue;
+  }
+
+  protected get computed(): AjaxAtomBaseData & C {
+    return {
+      isPending: () => this.state.status === AjaxStatus.Pending,
+      isDone: () => this.state.status === AjaxStatus.Success,
+      isFailed: () => this.state.status === AjaxStatus.Failure,
+    } as AjaxAtomBaseData & C;
   }
 
   async updateWith<T extends V>(requestPromise: Promise<T>): Promise<T> {

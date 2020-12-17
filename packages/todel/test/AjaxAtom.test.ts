@@ -79,6 +79,28 @@ describe("AjaxAtom", () => {
       return Promise.reject(new Error("test"));
     }
   });
+
+  describe("computed data", () => {
+    const idle = AuthorAtom.idle();
+    const pending = AuthorAtom.pending();
+    const done = AuthorAtom.done(author);
+    const failed = AuthorAtom.failed();
+
+    test("isPending", () => {
+      expect(idle.data.isPending()).toBe(false);
+      expect(pending.data.isPending()).toBe(true);
+    });
+
+    test("isDone", () => {
+      expect(pending.data.isDone()).toBe(false);
+      expect(done.data.isDone()).toBe(true);
+    });
+
+    test("isFailed", () => {
+      expect(done.data.isFailed()).toBe(false);
+      expect(failed.data.isFailed()).toBe(true);
+    });
+  });
 });
 
 function atomStatusEqual<T>(atom: AjaxAtom<T>, status: AjaxStatus): void {
