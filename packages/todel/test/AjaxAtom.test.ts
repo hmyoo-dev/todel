@@ -47,11 +47,11 @@ describe("AjaxAtom", () => {
     expect(atom.data.value).toEqual("foo");
   });
 
-  describe("request()", () => {
+  describe("updateWith()", () => {
     it("should update success when request succeed", async () => {
       const atom = AuthorAtom.idle();
 
-      const request = atom.request(getAuthorSuccess());
+      const request = atom.updateWith(getAuthorSuccess());
       atomStatusEqual(atom, S.Pending);
 
       const result = await request;
@@ -62,7 +62,7 @@ describe("AjaxAtom", () => {
     it("should update failure when request failed", async () => {
       const atom = AuthorAtom.idle();
 
-      const request = atom.request(getAuthorFailed());
+      const request = atom.updateWith(getAuthorFailed());
       atomStatusEqual(atom, S.Pending);
 
       await request.catch(() => "");

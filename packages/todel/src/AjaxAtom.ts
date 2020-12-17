@@ -29,7 +29,7 @@ export abstract class AjaxAtom<
     return this._initValue;
   }
 
-  async request<T extends V>(requestPromise: Promise<T>): Promise<T> {
+  async updateWith<T extends V>(requestPromise: Promise<T>): Promise<T> {
     this.requestStarted();
     try {
       const result = await requestPromise;
