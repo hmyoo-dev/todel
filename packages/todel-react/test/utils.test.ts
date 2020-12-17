@@ -31,6 +31,13 @@ describe("shallowEqual", () => {
     expect(shallowEqual(a, b)).toBe(false);
   });
 
+  it("should return false when prev is empty array", () => {
+    const a = [];
+    const b = [1, 2, 3];
+
+    expect(shallowEqual(a, b)).toBe(false);
+  });
+
   it("should compare not object values", () => {
     expect(shallowEqual(null, null)).toBe(true);
     expect(shallowEqual(undefined, undefined)).toBe(true);
