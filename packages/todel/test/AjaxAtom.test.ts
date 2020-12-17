@@ -59,6 +59,14 @@ describe("AjaxAtom", () => {
       expect(result).toEqual(author);
     });
 
+    it("can change result but return value equals result", async () => {
+      const atom = AuthorAtom.idle();
+      const result = await atom.updateWith(Promise.resolve(10), () => author);
+
+      expect(result).toEqual(10);
+      expect(atom.data.value).toEqual(author);
+    });
+
     it("should update failure when request failed", async () => {
       const atom = AuthorAtom.idle();
 

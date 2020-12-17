@@ -1,4 +1,5 @@
 import { Atom } from "./Atom";
+import { Func } from "./types";
 
 export enum AjaxStatus {
   Idle = "IDLE",
@@ -43,11 +44,19 @@ export abstract class AjaxAtom<
     } as AjaxAtomBaseData & C;
   }
 
-  async updateWith<T extends V>(requestPromise: Promise<T>): Promise<T> {
+  async updateWith<T extends V>(requestPromise: Promise<T>): Promise<T>;
+  async updateWith<R, T extends V>(
+    requestPromise: Promise<R>,
+    resultMapper: Func<R, T>
+  ): Promise<R>;
+  async updateWith<T extends V>(
+    requestPromise: Promise<T>,
+    resultMapper: Func<T, T> = (r) => r
+  ): Promise<T> {
     this.requestStarted();
     try {
       const result = await requestPromise;
-      this.requestDone(result);
+      this.requestDone(resultMapper(result));
       return result;
     } catch (err) {
       this.requestFailed(err);
