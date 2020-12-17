@@ -4,18 +4,22 @@ import { StoreProvider } from "../src/StoreProvider";
 import {
   CounterAtom,
   CounterController,
-  CounterRepo,
+  CounterHolder,
   CounterState,
+  ListAtom,
+  ListAtomHolder,
+  ListController,
 } from "./fixtures";
 
 export function createMockStore(
   initState: CounterState = { count: 0 }
-): Store<CounterRepo> {
+): Store<CounterHolder & ListAtomHolder> {
   const counter = new CounterAtom(initState);
+  const list = new ListAtom({ items: [] });
 
   return new Store({
-    atoms: { counter },
-    controllers: [new CounterController(counter)],
+    atoms: { counter, list },
+    controllers: [new CounterController(counter), new ListController(list)],
   });
 }
 

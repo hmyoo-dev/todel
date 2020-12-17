@@ -1,5 +1,6 @@
 import { actionCreator, ActionHandler, Atom, Controller } from "todel";
 
+// Counter
 export const increase = actionCreator("increase");
 export const setCount = actionCreator<number>("setCount");
 
@@ -32,6 +33,42 @@ export class CounterController implements Controller {
     };
   }
 }
-export interface CounterRepo {
+export interface CounterHolder {
   counter: CounterAtom;
+}
+
+// List
+export interface Item {
+  name: string;
+}
+
+export const addItem = actionCreator<Item>("addName");
+export interface ListState {
+  items: Item[];
+}
+
+export class ListAtom extends Atom<ListState> {
+  append(item: Item): void {
+    this.updateState((state) => ({
+      ...state,
+      items: [...state.items, item],
+    }));
+  }
+}
+
+export class ListController implements Controller {
+  constructor(private list: ListAtom) {}
+
+  getHandler(): ActionHandler {
+    return (action) => {
+      if (addItem.match(action)) {
+        this.list.append(action.payload);
+        return;
+      }
+    };
+  }
+}
+
+export interface ListAtomHolder {
+  list: ListAtom;
 }
