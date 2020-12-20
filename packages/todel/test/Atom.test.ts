@@ -34,8 +34,8 @@ describe("Atom", () => {
     it("should call callback when updated", (done) => {
       const counterAtom = CounterAtom.fromCount(1);
 
-      counterAtom.subscribe(({ count }) => {
-        expect(count).toEqual(2);
+      counterAtom.subscribe((atom) => {
+        expect(atom.state.count).toEqual(2);
         done();
       });
 

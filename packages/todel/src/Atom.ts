@@ -9,8 +9,8 @@ import {
 } from "./types";
 
 export abstract class Atom<State, Computed = unknown>
-  implements Subscribable<State & Computed>, JsonSerializable {
-  private pubSub = new PubSub<State & Computed>();
+  implements Subscribable<Atom<State, Computed>>, JsonSerializable {
+  private pubSub = new PubSub<this>();
   private _state!: State;
   private _data!: State & Computed;
 
@@ -18,7 +18,7 @@ export abstract class Atom<State, Computed = unknown>
     this.updateState(() => state);
   }
 
-  protected get state(): State {
+  get state(): State {
     return this._state;
   }
 
@@ -33,10 +33,10 @@ export abstract class Atom<State, Computed = unknown>
   protected updateState(modifier: StateModifier<State>): void {
     this._state = modifier(this._state);
     this._data = Object.freeze({ ...this._state, ...this.computed });
-    this.pubSub.publish(this.data);
+    this.pubSub.publish(this);
   }
 
-  subscribe(subscriber: Consumer<State & Computed>): Subscription {
+  subscribe(subscriber: Consumer<this>): Subscription {
     return this.pubSub.subscribe(subscriber);
   }
 
