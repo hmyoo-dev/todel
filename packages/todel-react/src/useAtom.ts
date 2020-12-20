@@ -3,25 +3,25 @@ import { Atom } from "todel";
 import { StoreContext } from "./StoreContext";
 import { shallowEqual } from "./utils";
 
-export interface AtomSelector<Repo, State, Computed> {
+export interface LegacyAtomSelector<Repo, State, Computed> {
   (repo: Repo): Atom<State, Computed>;
 }
 
-export interface DataSelector<Result, State, Computed = unknown> {
+export interface LegacyDataSelector<Result, State, Computed = unknown> {
   (data: State & Computed): Result;
 }
 
 export function useAtom<Repo, State, Computed = unknown>(
-  atomSelector: AtomSelector<Repo, State, Computed>
+  atomSelector: LegacyAtomSelector<Repo, State, Computed>
 ): State;
 export function useAtom<Repo, Result, State, Computed = unknown>(
-  atomSelector: AtomSelector<Repo, State, Computed>,
-  dataSelector: DataSelector<Result, State, Computed>,
+  atomSelector: LegacyAtomSelector<Repo, State, Computed>,
+  dataSelector: LegacyDataSelector<Result, State, Computed>,
   equalityFn?: (prev: Result, next: Result) => boolean
 ): Result;
 export function useAtom(
-  atomSelector: AtomSelector<unknown, unknown, unknown>,
-  dataSelector: DataSelector<unknown, unknown> = (s) => s,
+  atomSelector: LegacyAtomSelector<unknown, unknown, unknown>,
+  dataSelector: LegacyDataSelector<unknown, unknown> = (s) => s,
   equalityFn: (prev: unknown, next: unknown) => boolean = shallowEqual
 ): unknown {
   const store = useContext(StoreContext);
