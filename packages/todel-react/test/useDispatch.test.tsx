@@ -12,11 +12,11 @@ describe("useDispatch", () => {
       wrapper: createMockWrapper(store),
     });
 
-    expect(counter.data.count).toEqual(0);
+    expect(counter.state.count).toEqual(0);
 
     act(() => result.current(increase()));
 
-    expect(counter.data.count).toEqual(1);
+    expect(counter.state.count).toEqual(1);
   });
 
   it("should throw error if store is not provided", () => {

@@ -14,17 +14,10 @@ export interface AjaxAtomState<T> {
   error: unknown | null;
 }
 
-export interface AjaxAtomBaseData {
-  isPending(): boolean;
-  isDone(): boolean;
-  isFailed(): boolean;
-}
-
 export abstract class AjaxAtom<
   V,
-  S extends AjaxAtomState<V> = AjaxAtomState<V>,
-  C = unknown
-> extends Atom<S, AjaxAtomBaseData & C> {
+  S extends AjaxAtomState<V> = AjaxAtomState<V>
+> extends Atom<S> {
   private _initValue: V;
 
   constructor(initState: S) {
@@ -36,12 +29,16 @@ export abstract class AjaxAtom<
     return this._initValue;
   }
 
-  protected get computed(): AjaxAtomBaseData & C {
-    return {
-      isPending: () => this.state.status === AjaxStatus.Pending,
-      isDone: () => this.state.status === AjaxStatus.Success,
-      isFailed: () => this.state.status === AjaxStatus.Failure,
-    } as AjaxAtomBaseData & C;
+  isPending(): boolean {
+    return this.state.status === AjaxStatus.Pending;
+  }
+
+  isDone(): boolean {
+    return this.state.status === AjaxStatus.Success;
+  }
+
+  isFailed(): boolean {
+    return this.state.status === AjaxStatus.Failure;
   }
 
   async updateWith<T extends V>(requestPromise: Promise<T>): Promise<T>;

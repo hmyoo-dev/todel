@@ -8,11 +8,10 @@ import {
   ToJsonOption,
 } from "./types";
 
-export abstract class Atom<State, Computed = unknown>
-  implements Subscribable<Atom<State, Computed>>, JsonSerializable {
+export abstract class Atom<State>
+  implements Subscribable<Atom<State>>, JsonSerializable {
   private pubSub = new PubSub<this>();
   private _state!: State;
-  private _data!: State & Computed;
 
   constructor(state: State) {
     this.updateState(() => state);
@@ -22,17 +21,8 @@ export abstract class Atom<State, Computed = unknown>
     return this._state;
   }
 
-  protected get computed(): Computed {
-    return {} as Computed;
-  }
-
-  get data(): State & Computed {
-    return this._data;
-  }
-
   protected updateState(modifier: StateModifier<State>): void {
-    this._state = modifier(this._state);
-    this._data = Object.freeze({ ...this._state, ...this.computed });
+    this._state = Object.freeze(modifier(this._state));
     this.pubSub.publish(this);
   }
 

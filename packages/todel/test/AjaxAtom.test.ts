@@ -14,7 +14,7 @@ describe("AjaxAtom", () => {
 
     atomStatusEqual(idleAtom, S.Pending);
     atomStatusEqual(doneAtom, S.Pending);
-    expect(doneAtom.data.value).toBe(null);
+    expect(doneAtom.state.value).toBe(null);
   });
 
   it("should set success when done", () => {
@@ -22,7 +22,7 @@ describe("AjaxAtom", () => {
     atom.requestDone(author);
 
     atomStatusEqual(atom, S.Success);
-    expect(atom.data.value).toEqual(author);
+    expect(atom.state.value).toEqual(author);
   });
 
   it("should set failure when failed", () => {
@@ -32,19 +32,19 @@ describe("AjaxAtom", () => {
     atom.requestFailed(err);
 
     atomStatusEqual(atom, S.Failure);
-    expect(atom.data.value).toEqual(null);
-    expect(atom.data.error).toEqual(err);
+    expect(atom.state.value).toEqual(null);
+    expect(atom.state.error).toEqual(err);
   });
 
   it("has default value from initial value", () => {
     class TestAtom extends AjaxAtom<string> {}
 
     const atom = new TestAtom(idleAjaxAtomState("foo"));
-    expect(atom.data.value).toEqual("foo");
+    expect(atom.state.value).toEqual("foo");
     atom.requestDone("bar");
-    expect(atom.data.value).toEqual("bar");
+    expect(atom.state.value).toEqual("bar");
     atom.requestStarted();
-    expect(atom.data.value).toEqual("foo");
+    expect(atom.state.value).toEqual("foo");
   });
 
   describe("updateWith()", () => {
@@ -64,7 +64,7 @@ describe("AjaxAtom", () => {
       const result = await atom.updateWith(Promise.resolve(10), () => author);
 
       expect(result).toEqual(10);
-      expect(atom.data.value).toEqual(author);
+      expect(atom.state.value).toEqual(author);
     });
 
     it("should update failure when request failed", async () => {
@@ -75,8 +75,8 @@ describe("AjaxAtom", () => {
 
       await request.catch(() => "");
       atomStatusEqual(atom, S.Failure);
-      expect(atom.data.value).toBe(null);
-      expect(atom.data.error).toBeInstanceOf(Error);
+      expect(atom.state.value).toBe(null);
+      expect(atom.state.error).toBeInstanceOf(Error);
     });
 
     function getAuthorSuccess(): Promise<Author> {
@@ -88,29 +88,32 @@ describe("AjaxAtom", () => {
     }
   });
 
-  describe("computed data", () => {
+  describe("Status flags", () => {
     const idle = AuthorAtom.idle();
     const pending = AuthorAtom.pending();
     const done = AuthorAtom.done(author);
     const failed = AuthorAtom.failed();
 
     test("isPending", () => {
-      expect(idle.data.isPending()).toBe(false);
-      expect(pending.data.isPending()).toBe(true);
+      expect(idle.isPending()).toBe(false);
+      expect(pending.isPending()).toBe(true);
     });
 
     test("isDone", () => {
-      expect(pending.data.isDone()).toBe(false);
-      expect(done.data.isDone()).toBe(true);
+      expect(pending.isDone()).toBe(false);
+      expect(done.isDone()).toBe(true);
     });
 
     test("isFailed", () => {
-      expect(done.data.isFailed()).toBe(false);
-      expect(failed.data.isFailed()).toBe(true);
+      expect(done.isFailed()).toBe(false);
+      expect(failed.isFailed()).toBe(true);
     });
   });
 });
 
-function atomStatusEqual<T>(atom: AjaxAtom<T>, status: AjaxStatus): void {
-  expect(atom.data.status).toEqual(status);
+function atomStatusEqual<A extends AjaxAtom<unknown>>(
+  atom: A,
+  status: AjaxStatus
+): void {
+  expect(atom.state.status).toEqual(status);
 }

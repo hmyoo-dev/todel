@@ -1,5 +1,4 @@
 import { AxiosInstance } from "axios";
-import { AjaxStatus } from "todel";
 import { NoteDraftAtom, NoteDraftAtomHolder } from "../atom/note/NoteDraftAtom";
 import { NotePostAtom, NotePostAtomHolder } from "../atom/note/NotePostAtom";
 import { NotesAtom, NotesAtomHolder } from "../atom/note/NotesAtom";
@@ -40,7 +39,7 @@ export class NotesService {
   async postDraftNote(): Promise<NoteItem> {
     const { draft } = this.noteDraft.state;
 
-    if (this.notePost.data.status === AjaxStatus.Pending) {
+    if (this.notePost.isPending()) {
       throw new Error("Please until posting is done");
     }
 
