@@ -38,8 +38,8 @@ export function useAtom(
   cachedValue.current = value;
 
   useEffect(() => {
-    const subscription = atom.subscribe((data) => {
-      const nextValue = dataSelector(data);
+    const subscription = atom.subscribe((atom) => {
+      const nextValue = dataSelector(atom.data);
       if (!equalityFn(cachedValue.current, nextValue)) {
         setValue(nextValue);
       }
