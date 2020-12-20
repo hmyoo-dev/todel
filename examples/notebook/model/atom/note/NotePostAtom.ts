@@ -1,4 +1,4 @@
-import { createAtomSelector } from "@todel/react";
+import { createDataHook } from "@todel/react";
 import { AjaxAtom, idleAjaxAtomState } from "todel";
 import { NoteItem } from "../../dataTypes";
 
@@ -14,6 +14,6 @@ export interface NotePostAtomHolder {
   };
 }
 
-export const useNotePostAtom = createAtomSelector(
+export const useNotePostAtom = createDataHook(
   (repo: NotePostAtomHolder) => repo.note.post
 );

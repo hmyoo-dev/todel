@@ -1,4 +1,4 @@
-import { createAtomSelector } from "@todel/react";
+import { createDataHook } from "@todel/react";
 import { AjaxAtom, idleAjaxAtomState } from "todel";
 import { NoteItem } from "../../dataTypes";
 
@@ -19,6 +19,6 @@ export interface NotesAtomHolder {
   };
 }
 
-export const useNotesAtom = createAtomSelector(
+export const useNotesAtom = createDataHook(
   (repo: NotesAtomHolder) => repo.note.notes
 );

@@ -1,21 +1,21 @@
 import { act, renderHook } from "@testing-library/react-hooks";
 import { FC } from "react";
 import { Store } from "todel";
-import { AtomSelector, createDataHook } from "../src/createDataHook";
-import { CounterHolder, CounterState, increase, setCount } from "./fixtures";
+import { createDataHook } from "../src/createDataHook";
+import { CounterHolder, increase, setCount } from "./fixtures";
 import { createMockStore, createMockWrapper } from "./testHelpers";
 
 describe("createDataHook", () => {
   let store: Store<CounterHolder>;
   let wrapper: FC;
 
-  const atomSelector: AtomSelector<CounterHolder, CounterState> = (repo) =>
-    repo.counter;
-
-  const useStateData = createDataHook(atomSelector);
-  const useModifiedData = createDataHook(atomSelector, (atom) => ({
-    value: atom.state.count + 10,
-  }));
+  const useStateData = createDataHook((repo: CounterHolder) => repo.counter);
+  const useModifiedData = createDataHook(
+    (repo: CounterHolder) => repo.counter,
+    (atom) => ({
+      value: atom.state.count + 10,
+    })
+  );
 
   beforeEach(() => {
     store = createMockStore();

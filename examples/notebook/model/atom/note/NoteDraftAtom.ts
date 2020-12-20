@@ -1,4 +1,4 @@
-import { createAtomSelector } from "@todel/react";
+import { createDataHook } from "@todel/react";
 import { Atom } from "todel";
 import { NoteDraft } from "../../dataTypes";
 
@@ -6,25 +6,18 @@ export interface NoteDraftAtomState {
   draft: NoteDraft;
 }
 
-export interface NoteDraftAtomComputed {
-  isFulfilled(): boolean;
+export interface NoteDraftData extends NoteDraftAtomState {
+  isFulfilled: boolean;
 }
 
-export class NoteDraftAtom extends Atom<
-  NoteDraftAtomState,
-  NoteDraftAtomComputed
-> {
+export class NoteDraftAtom extends Atom<NoteDraftAtomState> {
   static empty(): NoteDraftAtom {
     return new NoteDraftAtom({ draft: emptyDraft });
   }
 
-  get computed(): NoteDraftAtomComputed {
-    return {
-      isFulfilled: () => {
-        const { title, content } = this.state.draft;
-        return [title, content].every((text) => text.trim().length > 0);
-      },
-    };
+  isFulfilled(): boolean {
+    const { title, content } = this.state.draft;
+    return [title, content].every((text) => text.trim().length > 0);
   }
 
   updateDraft(draft: NoteDraft): void {
@@ -42,8 +35,14 @@ export interface NoteDraftAtomHolder {
   };
 }
 
-export const useNoteDraftAtom = createAtomSelector(
-  (repo: NoteDraftAtomHolder) => repo.note.draft
+export const useNoteDraftData = createDataHook(
+  (repo: NoteDraftAtomHolder): NoteDraftAtom => repo.note.draft,
+  (atom): NoteDraftData => ({
+    ...atom.state,
+    get isFulfilled(): boolean {
+      return atom.isFulfilled();
+    },
+  })
 );
 
 const emptyDraft: NoteDraft = {

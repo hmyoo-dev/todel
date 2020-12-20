@@ -1,3 +1,4 @@
+import type { Atom } from "./Atom";
 import type { Store } from "./Store";
 
 /** Common types */
@@ -59,6 +60,9 @@ export interface PrepareActionCreator<
 export interface StateModifier<State> {
   (current: State): State;
 }
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type AnyAtom = Atom<any>;
 
 /** Controller types */
 export interface ActionEffector {

@@ -1,3 +1,4 @@
+import { createDataHook } from "@todel/react";
 import { actionCreator, ActionHandler, Atom, Controller } from "todel";
 
 // actions
@@ -29,6 +30,10 @@ export class Counter extends Atom<CounterState> {
 export interface CounterHolder {
   counter: Counter;
 }
+
+export const useCounterData = createDataHook(
+  (repo: CounterHolder) => repo.counter
+);
 
 // controller
 export class CounterController implements Controller {

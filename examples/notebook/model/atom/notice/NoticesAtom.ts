@@ -1,3 +1,4 @@
+import { createDataHook } from "@todel/react";
 import { Atom } from "todel";
 import { Notice } from "../../dataTypes";
 
@@ -35,6 +36,6 @@ export interface NoticesAtomHolder {
   notice: NoticesAtom;
 }
 
-export function selectNoticesAtom(repo: NoticesAtomHolder): NoticesAtom {
-  return repo.notice;
-}
+export const useNoticesData = createDataHook(
+  (repo: NoticesAtomHolder) => repo.notice
+);
