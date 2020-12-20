@@ -1,9 +1,8 @@
-import { useAtom } from "@todel/react";
 import React, { FC } from "react";
-import { selectNoticesAtom } from "../model/atom/notice/NoticesAtom";
+import { useNoticesData } from "../model/atom/notice/NoticesAtom";
 
 export const NotificationBar: FC = () => {
-  const { items } = useAtom(selectNoticesAtom);
+  const { items } = useNoticesData();
 
   const itemNodes =
     items.length < 1 ? (

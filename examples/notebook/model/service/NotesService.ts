@@ -38,13 +38,13 @@ export class NotesService {
   }
 
   async postDraftNote(): Promise<NoteItem> {
-    const { draft, isFulfilled } = this.noteDraft.data;
+    const { draft } = this.noteDraft.state;
 
     if (this.notePost.data.status === AjaxStatus.Pending) {
       throw new Error("Please until posting is done");
     }
 
-    if (!isFulfilled()) {
+    if (!this.noteDraft.isFulfilled()) {
       throw new Error("Draft should not be empty");
     }
 

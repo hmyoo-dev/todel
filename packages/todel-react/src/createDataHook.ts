@@ -1,13 +1,13 @@
 import { useContext, useEffect, useRef, useState } from "react";
-import { Atom } from "todel";
+import { AnyAtom, Atom } from "todel";
 import { StoreContext } from "./StoreContext";
 
-export interface AtomSelector<Repo, State> {
-  (repo: Repo): Atom<State>;
+export interface AtomSelector<Repo, A extends AnyAtom> {
+  (repo: Repo): A;
 }
 
-export interface DataSelector<State, Data> {
-  (atom: Atom<State>): Data;
+export interface DataSelector<A extends AnyAtom, Data> {
+  (atom: A): Data;
 }
 
 export interface ValueSelector<Data, Value> {
@@ -27,17 +27,17 @@ export interface UseDataHook<Data> {
 }
 
 export function createDataHook<Repo, State>(
-  atomSelector: AtomSelector<Repo, State>
+  atomSelector: AtomSelector<Repo, Atom<State>>
 ): UseDataHook<State>;
 
-export function createDataHook<Repo, State, Data>(
-  atomSelector: AtomSelector<Repo, State>,
-  dataSelector: DataSelector<State, Data>
+export function createDataHook<Repo, Data, A extends AnyAtom>(
+  atomSelector: AtomSelector<Repo, A>,
+  dataSelector: DataSelector<A, Data>
 ): UseDataHook<Data>;
 
 export function createDataHook<State, Data>(
-  atomSelector: AtomSelector<unknown, State>,
-  dataSelector: DataSelector<State, Data> = (atom) => atom.state as never
+  atomSelector: AtomSelector<unknown, Atom<State>>,
+  dataSelector: DataSelector<Atom<State>, Data> = (atom) => atom.state as never
 ): UseDataHook<Data> {
   return <Value>(
     selector: ValueSelector<Data, Value> = (data) => data as never,

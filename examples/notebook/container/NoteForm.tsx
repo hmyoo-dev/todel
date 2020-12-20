@@ -2,14 +2,14 @@ import { useDispatch } from "@todel/react";
 import React, { FC, useEffect, useState } from "react";
 import { AjaxStatus } from "todel";
 import { postNote, updateDraft } from "../model/actions";
-import { useNoteDraftAtom } from "../model/atom/note/NoteDraftAtom";
+import { useNoteDraftData } from "../model/atom/note/NoteDraftAtom";
 import { useNotePostAtom } from "../model/atom/note/NotePostAtom";
 
 export const NoteForm: FC = () => {
   const dispatch = useDispatch();
 
   const posting = useNotePostAtom((data) => data.status === AjaxStatus.Pending);
-  const storedDraft = useNoteDraftAtom((data) => data.draft);
+  const storedDraft = useNoteDraftData((data) => data.draft);
 
   const [title, setTitle] = useState(storedDraft.title);
   const [content, setContent] = useState(storedDraft.content);
