@@ -30,7 +30,7 @@ describe(withDraft, () => {
     service.setUser({ name: "test" });
 
     expect(initState.user).toBe(null);
-    expect(service.data.user?.name).toEqual("test");
+    expect(service.state.user?.name).toEqual("test");
   });
 });
 

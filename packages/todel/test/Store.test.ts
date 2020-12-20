@@ -18,18 +18,18 @@ describe("Store", () => {
       };
     });
 
-    expect(store.atoms.counter.data.count).toEqual(10);
+    expect(store.atoms.counter.state.count).toEqual(10);
   });
 
   it("should update state when dispatch a action", () => {
     const store = createStore();
     const { counter } = store.services;
 
-    expect(counter.data.count).toEqual(0);
+    expect(counter.state.count).toEqual(0);
 
     store.dispatch(increase());
 
-    expect(counter.data.count).toEqual(1);
+    expect(counter.state.count).toEqual(1);
   });
 
   it("can subscribe actions", () => {

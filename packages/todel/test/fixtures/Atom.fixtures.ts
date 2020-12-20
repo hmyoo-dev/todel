@@ -4,11 +4,7 @@ export interface CounterAtomState {
   count: number;
 }
 
-export interface CounterComputed {
-  getRest(max: number): number;
-}
-
-export class CounterAtom extends Atom<CounterAtomState, CounterComputed> {
+export class CounterAtom extends Atom<CounterAtomState> {
   static fromCount(count: number): CounterAtom {
     return new CounterAtom({ count });
   }
@@ -19,12 +15,6 @@ export class CounterAtom extends Atom<CounterAtomState, CounterComputed> {
 
   decrease(): void {
     this.updateState((state) => ({ ...state, count: state.count - 1 }));
-  }
-
-  get computed(): CounterComputed {
-    return {
-      getRest: (max) => max - this.state.count,
-    };
   }
 }
 
