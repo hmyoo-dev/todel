@@ -41,6 +41,7 @@
     "lint-staged": "^10.5.1",
     "organize-imports-cli": "^0.8.0",
     "prettier": "2.1.2",
+    "todel-test-helpers": "*",
     "typescript": "^4.0.5"
   }
 }

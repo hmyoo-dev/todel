@@ -1,0 +1,21 @@
+{
+  "name": "todel-test-helpers",
+  "version": "0.1.0",
+  "repository": "https://github.com/hmyoo-dev/todel.git",
+  "author": "Hyeongmin Yoo <hmyoo.dev@gmail.com>",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "prepublish": "yarn build",
+    "type-check": "tsc --noEmit",
+    "build": "rm -rf ./dist && tsc --build",
+    "build:watch": "tsc --build --watch"
+  },
+  "files": [
+    "fixtures",
+    "helpers"
+  ],
+  "peerDependencies": {
+    "todel": "*"
+  }
+}
