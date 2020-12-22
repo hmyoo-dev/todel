@@ -1,4 +1,5 @@
 import { StoreProvider } from "@todel/react";
+import { applyReduxDevtools } from "@todel/redux-devtools";
 import React, { FC } from "react";
 import { render } from "react-dom";
 import { Store } from "todel";
@@ -11,6 +12,8 @@ const App: FC = () => {
     atoms: { counter },
     controllers: [new CounterController(counter)],
   });
+
+  applyReduxDevtools(store, { name: "Counter" });
 
   return (
     <StoreProvider store={store}>
