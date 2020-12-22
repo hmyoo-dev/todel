@@ -1,0 +1,12 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "outDir": "./",
+    "rootDir": "./src",
+    "incremental": true,
+    "tsBuildInfoFile": "./build.build-info"
+  },
+  "files": ["src/fixtures/index.ts", "src/helpers/index.ts"],
+  "include": ["src/*.ts"],
+  "references": [{ "path": "../todel" }]
+}
