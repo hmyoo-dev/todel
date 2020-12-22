@@ -1,1 +1,1 @@
-console.log("todel-redux-devtools");
+export * from "./applyReduxDevtools";
