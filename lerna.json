@@ -2,7 +2,7 @@
   "version": "independent",
   "npmClient": "yarn",
   "useWorkspaces": true,
-  "packages": ["packages/*", "examples"],
+  "packages": ["packages/*"],
   "command": {
     "version": {
       "allowBranch": "main",
