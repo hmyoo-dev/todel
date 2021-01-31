@@ -24,10 +24,10 @@
     "README.md"
   ],
   "peerDependencies": {
-    "immer": "^7.0.14",
+    "immer": "^8.0.1",
     "todel": "^0.8.0"
   },
   "devDependencies": {
-    "immer": "^7.0.14"
+    "immer": "^8.0.1"
   }
 }
