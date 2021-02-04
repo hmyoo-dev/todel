@@ -10,7 +10,7 @@ import {
 
 export abstract class Atom<State>
   implements Subscribable<Atom<State>>, JsonSerializable {
-  private pubSub = new PubSub<this>();
+  private pubSub = new PubSub<Atom<State>>();
   private _state!: State;
 
   constructor(state: State) {
@@ -27,7 +27,7 @@ export abstract class Atom<State>
   }
 
   subscribe(subscriber: Consumer<this>): Subscription {
-    return this.pubSub.subscribe(subscriber);
+    return this.pubSub.subscribe(subscriber as Consumer<Atom<State>>);
   }
 
   // unused parameter for override
