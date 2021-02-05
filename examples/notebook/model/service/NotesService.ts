@@ -1,12 +1,14 @@
 import { AxiosInstance } from "axios";
-import { NoteDraftAtom, NoteDraftAtomHolder } from "../atom/note/NoteDraftAtom";
-import { NotePostAtom, NotePostAtomHolder } from "../atom/note/NotePostAtom";
-import { NotesAtom, NotesAtomHolder } from "../atom/note/NotesAtom";
+import { NoteDraftAtom, noteDraftAtomId } from "../atom/note/NoteDraftAtom";
+import { NotePostAtom, notePostAtomId } from "../atom/note/NotePostAtom";
+import { NotesAtom, notesAtomId } from "../atom/note/NotesAtom";
 import { NoteDraft, NoteItem } from "../dataTypes";
 
-export type NoteAtomsHolder = NotesAtomHolder &
-  NoteDraftAtomHolder &
-  NotePostAtomHolder;
+export interface NoteAtomsRepo {
+  [noteDraftAtomId]: NoteDraftAtom;
+  [notePostAtomId]: NotePostAtom;
+  [notesAtomId]: NotesAtom;
+}
 
 export class NotesService {
   constructor(
@@ -16,15 +18,12 @@ export class NotesService {
     private notePost: NotePostAtom
   ) {}
 
-  static fromNoteHolder(
-    holder: NoteAtomsHolder,
-    ajax: AxiosInstance
-  ): NotesService {
+  static fromRepo(repo: NoteAtomsRepo, ajax: AxiosInstance): NotesService {
     return new NotesService(
       ajax,
-      holder.note.notes,
-      holder.note.draft,
-      holder.note.post
+      repo[notesAtomId],
+      repo[noteDraftAtomId],
+      repo[notePostAtomId]
     );
   }
 
@@ -53,8 +52,8 @@ export class NotesService {
         .then((response) => response.data)
     );
 
-    this.notes.appendNote(note);
     this.noteDraft.clearDraft();
+    this.notes.appendNote(note);
 
     return note;
   }

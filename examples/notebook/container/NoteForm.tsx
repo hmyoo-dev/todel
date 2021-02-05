@@ -1,35 +1,17 @@
 import { useDispatch } from "@todel/react";
-import React, { FC, useEffect, useState } from "react";
-import { AjaxStatus } from "todel";
-import { postNote, updateDraft } from "../model/actions";
-import { useNoteDraftData } from "../model/atom/note/NoteDraftAtom";
+import React, { FC } from "react";
+import { postNote } from "../model/actions";
+import { useNoteDraftAtom } from "../model/atom/note/NoteDraftAtom";
 import { useNotePostAtom } from "../model/atom/note/NotePostAtom";
 
 export const NoteForm: FC = () => {
   const dispatch = useDispatch();
-
-  const posting = useNotePostAtom((data) => data.status === AjaxStatus.Pending);
-  const storedDraft = useNoteDraftData((data) => data.draft);
-
-  const [title, setTitle] = useState(storedDraft.title);
-  const [content, setContent] = useState(storedDraft.content);
-
-  // update form if service state changed.
-  useEffect(() => {
-    setTitle(storedDraft.title);
-    setContent(storedDraft.content);
-  }, [storedDraft]);
-
-  const storeDraft = (): void => {
-    if (storedDraft.title === title && storedDraft.content === content) return;
-    dispatch(updateDraft({ title, content }));
-  };
+  const pending = useNotePostAtom((atom) => atom.isPending());
 
   return (
     <form
       onSubmit={(e) => {
         e.preventDefault();
-        storeDraft();
         dispatch(postNote());
       }}
       style={{
@@ -40,24 +22,43 @@ export const NoteForm: FC = () => {
         margin: "0 auto",
       }}
     >
-      <input
-        type="text"
-        value={title}
-        onChange={(e) => setTitle(e.target.value)}
-        onBlur={storeDraft}
-      />
-
-      <textarea
-        cols={30}
-        rows={10}
-        value={content}
-        onChange={(e) => setContent(e.target.value)}
-        onBlur={storeDraft}
-      ></textarea>
+      <TitleInput />
+      <ContentInput />
 
       <button type="submit">Post</button>
 
-      {posting && <div>Pending...</div>}
+      {pending && <div>Pending...</div>}
     </form>
+  );
+};
+
+const TitleInput: FC = () => {
+  const { title, updateDraft } = useNoteDraftAtom((atom) => ({
+    title: atom.state.draft.title,
+    updateDraft: atom.updateDraft,
+  }));
+
+  return (
+    <input
+      type="text"
+      value={title}
+      onChange={(e) => updateDraft({ title: e.currentTarget.value })}
+    />
+  );
+};
+
+const ContentInput: FC = () => {
+  const { content, updateDraft } = useNoteDraftAtom((atom) => ({
+    content: atom.state.draft.content,
+    updateDraft: atom.updateDraft,
+  }));
+
+  return (
+    <textarea
+      cols={30}
+      rows={10}
+      value={content}
+      onChange={(e) => updateDraft({ content: e.target.value })}
+    ></textarea>
   );
 };

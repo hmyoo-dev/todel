@@ -1,5 +1,5 @@
-import { createDataHook } from "@todel/react";
-import { Atom } from "todel";
+import { createLocalAtomContext } from "@todel/react";
+import { Atom, AtomMeta } from "todel";
 import { NoteDraft } from "../../dataTypes";
 
 export interface NoteDraftAtomState {
@@ -15,35 +15,33 @@ export class NoteDraftAtom extends Atom<NoteDraftAtomState> {
     return new NoteDraftAtom({ draft: emptyDraft });
   }
 
-  isFulfilled(): boolean {
+  meta: AtomMeta = {
+    devtool: { ignoreUpdate: true },
+  };
+
+  isFulfilled = (): boolean => {
     const { title, content } = this.state.draft;
     return [title, content].every((text) => text.trim().length > 0);
-  }
+  };
 
-  updateDraft(draft: NoteDraft): void {
-    this.updateState((state) => ({ ...state, draft: { ...draft } }));
-  }
+  updateDraft = (draft: Partial<NoteDraft>): void => {
+    this.updateState((state) => ({
+      ...state,
+      draft: { ...state.draft, ...draft },
+    }));
+  };
 
-  clearDraft(): void {
+  clearDraft = (): void => {
     this.updateState((state) => ({ ...state, draft: { ...emptyDraft } }));
-  }
-}
-
-export interface NoteDraftAtomHolder {
-  note: {
-    draft: NoteDraftAtom;
   };
 }
 
-export const useNoteDraftData = createDataHook(
-  (repo: NoteDraftAtomHolder): NoteDraftAtom => repo.note.draft,
-  (atom): NoteDraftData => ({
-    ...atom.state,
-    get isFulfilled(): boolean {
-      return atom.isFulfilled();
-    },
-  })
-);
+export const {
+  Provider: NoteDraftAtomProvider,
+  useLocalAtom: useNoteDraftAtom,
+} = createLocalAtomContext<NoteDraftAtom>();
+
+export const noteDraftAtomId = "NOTE_DRAFT";
 
 const emptyDraft: NoteDraft = {
   title: "",

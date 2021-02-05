@@ -1,4 +1,4 @@
-import { createDataHook } from "@todel/react";
+import { createAtomsHook } from "@todel/react";
 import { Atom } from "todel";
 import { Notice } from "../../dataTypes";
 
@@ -32,10 +32,8 @@ export class NoticesAtom extends Atom<NoticesAtomState> {
   }
 }
 
-export interface NoticesAtomHolder {
-  notice: NoticesAtom;
-}
+export const noticesAtomId = "NOTICES";
 
-export const useNoticesData = createDataHook(
-  (repo: NoticesAtomHolder) => repo.notice
-);
+export const useNoticesAtom = createAtomsHook((repo) => [
+  repo[noticesAtomId] as NoticesAtom,
+]);

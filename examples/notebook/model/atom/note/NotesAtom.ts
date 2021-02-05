@@ -1,24 +1,38 @@
-import { createDataHook } from "@todel/react";
-import { AjaxAtom, idleAjaxAtomState } from "todel";
+import { createAtomsHook } from "@todel/react";
+import { AsyncAtom, AsyncAtomState, idleAsyncAtomState } from "todel";
 import { NoteItem } from "../../dataTypes";
 
-export class NotesAtom extends AjaxAtom<NoteItem[]> {
+export interface NotesAtomState extends AsyncAtomState {
+  notes: NoteItem[];
+}
+export class NotesAtom extends AsyncAtom<NotesAtomState, NoteItem[]> {
   static empty(): NotesAtom {
-    return new NotesAtom(idleAjaxAtomState([]));
+    return new NotesAtom({ ...idleAsyncAtomState(), notes: [] });
   }
 
   appendNote(note: NoteItem): NoteItem {
-    this.updateState((state) => ({ ...state, value: [...state.value, note] }));
+    this.updateState((state) => ({ ...state, notes: [...state.notes, note] }));
     return note;
+  }
+
+  protected updateStarted(state: NotesAtomState): NotesAtomState {
+    return { ...state, notes: [] };
+  }
+
+  protected updateDone(
+    state: NotesAtomState,
+    notes: NoteItem[]
+  ): NotesAtomState {
+    return { ...state, notes };
+  }
+
+  protected updateFailed(state: NotesAtomState): NotesAtomState {
+    return { ...state, notes: [] };
   }
 }
 
-export interface NotesAtomHolder {
-  note: {
-    notes: NotesAtom;
-  };
-}
+export const notesAtomId = "NOTES";
 
-export const useNotesAtom = createDataHook(
-  (repo: NotesAtomHolder) => repo.note.notes
-);
+export const useNotesAtom = createAtomsHook((repo) => [
+  repo[notesAtomId] as NotesAtom,
+]);
