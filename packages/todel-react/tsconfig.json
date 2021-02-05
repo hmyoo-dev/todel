@@ -9,6 +9,6 @@
     "tsBuildInfoFile": "./dist/build.build-info"
   },
   "files": ["src/index.ts"],
-  "include": ["src/*.ts"],
+  "include": ["src/*.ts", "src/*.tsx"],
   "references": [{ "path": "../todel" }]
 }
