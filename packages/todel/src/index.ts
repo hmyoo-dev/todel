@@ -1,5 +1,5 @@
 export * from "./actionCreators";
-export * from "./AjaxAtom";
+export * from "./AsyncAtom";
 export * from "./Atom";
 export * from "./controllerHelpers";
 export * from "./PubSub";

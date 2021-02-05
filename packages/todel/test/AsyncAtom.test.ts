@@ -1,53 +1,38 @@
-import { AjaxAtom, AjaxStatus, idleAjaxAtomState } from "../src/AjaxAtom";
-import { Author, AuthorAtom } from "./fixtures/AjaxAtom.fixtures";
+import { AsyncAtom, AsyncStatus } from "../src/AsyncAtom";
+import {
+  Author,
+  AuthorAtom,
+  SimpleAsyncAtom,
+} from "./fixtures/AsyncAtom.fixtures";
 
-const S = AjaxStatus;
+const S = AsyncStatus;
 describe("AjaxAtom", () => {
   const author: Author = { name: "Foo" };
 
-  it("should set pending when started", () => {
-    const idleAtom = AuthorAtom.idle();
-    const doneAtom = AuthorAtom.done(author);
-
-    idleAtom.requestStarted();
-    doneAtom.requestStarted();
-
-    atomStatusEqual(idleAtom, S.Pending);
-    atomStatusEqual(doneAtom, S.Pending);
-    expect(doneAtom.state.value).toBe(null);
-  });
-
-  it("should set success when done", () => {
-    const atom = AuthorAtom.pending();
-    atom.requestDone(author);
-
-    atomStatusEqual(atom, S.Success);
-    expect(atom.state.value).toEqual(author);
-  });
-
-  it("should set failure when failed", () => {
-    const atom = AuthorAtom.pending();
-    const err = new Error("test error");
-
-    atom.requestFailed(err);
-
-    atomStatusEqual(atom, S.Failure);
-    expect(atom.state.value).toEqual(null);
-    expect(atom.state.error).toEqual(err);
-  });
-
-  it("has default value from initial value", () => {
-    class TestAtom extends AjaxAtom<string> {}
-
-    const atom = new TestAtom(idleAjaxAtomState("foo"));
-    expect(atom.state.value).toEqual("foo");
-    atom.requestDone("bar");
-    expect(atom.state.value).toEqual("bar");
-    atom.requestStarted();
-    expect(atom.state.value).toEqual("foo");
-  });
-
   describe("updateWith()", () => {
+    it("should not change state when  no override method", async () => {
+      const value = "TEST";
+      const success = SimpleAsyncAtom.idle(value);
+      const failure = SimpleAsyncAtom.idle(value);
+
+      await success.updateWith(Promise.resolve());
+      await failure.updateWith(Promise.reject()).catch(() => "");
+
+      expect(success.state.value).toEqual(value);
+      expect(failure.state.value).toEqual(value);
+    });
+    it("should set pending when started", () => {
+      const idleAtom = AuthorAtom.idle();
+      const doneAtom = AuthorAtom.done(author);
+
+      idleAtom.updateWith(getAuthorSuccess());
+      doneAtom.updateWith(getAuthorSuccess());
+
+      atomStatusEqual(idleAtom, S.Pending);
+      atomStatusEqual(doneAtom, S.Pending);
+      expect(doneAtom.state.author).toBe(null);
+    });
+
     it("should update success when request succeed", async () => {
       const atom = AuthorAtom.idle();
 
@@ -64,7 +49,7 @@ describe("AjaxAtom", () => {
       const result = await atom.updateWith(Promise.resolve(10), () => author);
 
       expect(result).toEqual(10);
-      expect(atom.state.value).toEqual(author);
+      expect(atom.state.author).toEqual(author);
     });
 
     it("should update failure when request failed", async () => {
@@ -75,7 +60,7 @@ describe("AjaxAtom", () => {
 
       await request.catch(() => "");
       atomStatusEqual(atom, S.Failure);
-      expect(atom.state.value).toBe(null);
+      expect(atom.state.author).toBe(null);
       expect(atom.state.error).toBeInstanceOf(Error);
     });
 
@@ -111,9 +96,9 @@ describe("AjaxAtom", () => {
   });
 });
 
-function atomStatusEqual<A extends AjaxAtom<unknown>>(
+function atomStatusEqual<A extends AsyncAtom<any, any>>(
   atom: A,
-  status: AjaxStatus
+  status: AsyncStatus
 ): void {
   expect(atom.state.status).toEqual(status);
 }
