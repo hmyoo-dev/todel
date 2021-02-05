@@ -1,24 +1,17 @@
-import { StoreProvider } from "@todel/react";
-import { applyReduxDevtools } from "@todel/redux-devtools";
 import React, { FC } from "react";
 import { render } from "react-dom";
-import { Store } from "todel";
-import { CounterControl } from "./CounterControl";
-import { Counter, CounterController, CounterHolder } from "./model";
+import { CounterControl, CounterCount } from "./components";
+import { CounterAtom, CounterProvider } from "./CounterAtom";
 
 const App: FC = () => {
-  const counter = Counter.fromCount(0);
-  const store = new Store<CounterHolder>({
-    atoms: { counter },
-    controllers: [new CounterController(counter)],
-  });
-
-  applyReduxDevtools(store, { name: "Counter" });
+  const counterAtom = CounterAtom.fromCount(0);
 
   return (
-    <StoreProvider store={store}>
+    <CounterProvider atom={counterAtom}>
+      <h1>Counter</h1>
+      <CounterCount />
       <CounterControl />
-    </StoreProvider>
+    </CounterProvider>
   );
 };
 

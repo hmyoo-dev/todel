@@ -1,19 +1,15 @@
-import { createDataHook } from "@todel/react";
-import { AjaxAtom, idleAjaxAtomState } from "todel";
+import { createAtomsHook } from "@todel/react";
+import { AsyncAtom, AsyncAtomState, idleAsyncAtomState } from "todel";
 import { NoteItem } from "../../dataTypes";
 
-export class NotePostAtom extends AjaxAtom<NoteItem | null> {
+export class NotePostAtom extends AsyncAtom<AsyncAtomState, NoteItem> {
   static empty(): NotePostAtom {
-    return new NotePostAtom(idleAjaxAtomState(null));
+    return new NotePostAtom(idleAsyncAtomState());
   }
 }
 
-export interface NotePostAtomHolder {
-  note: {
-    post: NotePostAtom;
-  };
-}
+export const notePostAtomId = "NOTE_POST";
 
-export const useNotePostAtom = createDataHook(
-  (repo: NotePostAtomHolder) => repo.note.post
-);
+export const useNotePostAtom = createAtomsHook((repo) => [
+  repo[notePostAtomId] as NotePostAtom,
+]);

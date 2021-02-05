@@ -1,8 +1,8 @@
 import React, { FC } from "react";
-import { useNoticesData } from "../model/atom/notice/NoticesAtom";
+import { useNoticesAtom } from "../model/atom/notice/NoticesAtom";
 
 export const NotificationBar: FC = () => {
-  const { items } = useNoticesData();
+  const items = useNoticesAtom((atom) => atom.state.items);
 
   const itemNodes =
     items.length < 1 ? (

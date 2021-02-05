@@ -1,4 +1,5 @@
 import { StoreProvider } from "@todel/react";
+import { applyReduxDevtools } from "@todel/redux-devtools";
 import Axios from "axios";
 import React, { FC, useEffect } from "react";
 import { render } from "react-dom";
@@ -7,43 +8,55 @@ import { NoteForm } from "./container/NoteForm";
 import { NoteList } from "./container/NoteList";
 import { NotificationBar } from "./container/NotificationBar";
 import { init } from "./model/actions";
-import { NoteDraftAtom } from "./model/atom/note/NoteDraftAtom";
-import { NotePostAtom } from "./model/atom/note/NotePostAtom";
-import { NotesAtom } from "./model/atom/note/NotesAtom";
 import {
-  NoticesAtom,
-  NoticesAtomHolder,
-} from "./model/atom/notice/NoticesAtom";
+  NoteDraftAtom,
+  noteDraftAtomId,
+  NoteDraftAtomProvider,
+} from "./model/atom/note/NoteDraftAtom";
+import { NotePostAtom, notePostAtomId } from "./model/atom/note/NotePostAtom";
+import { NotesAtom, notesAtomId } from "./model/atom/note/NotesAtom";
+import { NoticesAtom, noticesAtomId } from "./model/atom/notice/NoticesAtom";
 import { NoteController } from "./model/NoteController";
-import { NoteAtomsHolder, NotesService } from "./model/service/NotesService";
+import { NoteAtomsRepo, NotesService } from "./model/service/NotesService";
 import { NoticesService } from "./model/service/NoticesService";
 
-type AppAtoms = NoteAtomsHolder & NoticesAtomHolder;
+interface AtomsRepo extends NoteAtomsRepo {
+  [noticesAtomId]: NoticesAtom;
+}
 
 const App: FC = () => {
   const ajax = Axios.create();
-  const atoms: AppAtoms = {
-    note: {
-      notes: NotesAtom.empty(),
-      draft: NoteDraftAtom.empty(),
-      post: NotePostAtom.empty(),
-    },
-    notice: NoticesAtom.empty(),
+
+  const notesAtom = NotesAtom.empty();
+  const noteDraftAtom = NoteDraftAtom.empty();
+  const notePostAtom = NotePostAtom.empty();
+  const noticesAtom = NoticesAtom.empty();
+
+  const atoms: AtomsRepo = {
+    [notesAtomId]: notesAtom,
+    [noteDraftAtomId]: noteDraftAtom,
+    [notePostAtomId]: notePostAtom,
+    [noticesAtomId]: noticesAtom,
   };
 
-  const notesService = NotesService.fromNoteHolder(atoms, ajax);
-  const noticesService = new NoticesService(atoms.notice);
+  const notesService = NotesService.fromRepo(atoms, ajax);
+  const noticesService = new NoticesService(noticesAtom);
 
-  const store = new Store<AppAtoms>({
+  const store = new Store<AtomsRepo>({
     atoms,
     controllers: [new NoteController(notesService, noticesService)],
   });
+
+  applyReduxDevtools(store, { name: "NOTEBOOK" });
 
   useEffect(() => store.dispatch(init()));
 
   return (
     <StoreProvider store={store}>
-      <NoteForm />
+      <NoteDraftAtomProvider atom={noteDraftAtom}>
+        <NoteForm />
+      </NoteDraftAtomProvider>
+
       <hr />
       <NotificationBar />
       <hr />

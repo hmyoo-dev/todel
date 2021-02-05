@@ -1,11 +1,13 @@
 import React, { FC } from "react";
-import { AjaxStatus } from "todel";
 import { useNotesAtom } from "../model/atom/note/NotesAtom";
 
 export const NoteList: FC = () => {
-  const { value: notes, status } = useNotesAtom();
+  const { notes, pending } = useNotesAtom((atom) => ({
+    notes: atom.state.notes,
+    pending: atom.isPending(),
+  }));
 
-  if (status === AjaxStatus.Pending) return <div>Loading...</div>;
+  if (pending) return <div>Loading...</div>;
 
   const noteNodes = notes.map(({ id, title, content }) => (
     <li key={id}>
