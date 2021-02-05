@@ -1,16 +1,18 @@
 import { act, renderHook } from "@testing-library/react-hooks";
+import React, { FC } from "react";
+import { counterStoreFixture, increase } from "todel-test-helpers/fixtures";
+import { StoreProvider } from "../src/StoreProvider";
 import { useDispatch } from "../src/useDispatch";
-import { increase } from "./fixtures";
-import { createMockStore, createMockWrapper } from "./testHelpers";
 
 describe("useDispatch", () => {
   it("should dispatch to store", () => {
-    const store = createMockStore();
+    const store = counterStoreFixture();
     const { counter } = store.services;
+    const Wrapper: FC = ({ children }) => (
+      <StoreProvider store={store}>{children}</StoreProvider>
+    );
 
-    const { result } = renderHook(() => useDispatch(), {
-      wrapper: createMockWrapper(store),
-    });
+    const { result } = renderHook(() => useDispatch(), { wrapper: Wrapper });
 
     expect(counter.state.count).toEqual(0);
 
