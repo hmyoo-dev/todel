@@ -18,6 +18,7 @@ export function applyReduxDevtools(
 
   Object.entries(store.atoms as Record<string, AnyAtom>).forEach(
     ([key, atom]) => {
+      if (atom.meta.devtool?.ignoreUpdate) return;
       atom.subscribe(() => {
         devtools.send({ type: `> ${key}` }, store.toJson());
       });
