@@ -1,3 +1,4 @@
+export * from "./createAtomsHook";
 export * from "./createDataHook";
 export * from "./createJoinDataHook";
 export * from "./createLocalAtomContext";
