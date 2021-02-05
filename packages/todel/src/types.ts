@@ -64,6 +64,14 @@ export interface StateModifier<State> {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type AnyAtom = Atom<any>;
 
+export interface AtomDevtoolOption {
+  ignoreUpdate?: boolean;
+}
+
+export interface AtomMeta {
+  devtool?: AtomDevtoolOption;
+}
+
 /** Controller types */
 export interface ActionEffector {
   emitError: Consumer<Error>;

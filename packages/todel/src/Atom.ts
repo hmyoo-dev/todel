@@ -1,5 +1,6 @@
 import { PubSub } from "./PubSub";
 import {
+  AtomMeta,
   Consumer,
   JsonSerializable,
   StateModifier,
@@ -10,6 +11,7 @@ import {
 
 export abstract class Atom<State>
   implements Subscribable<Atom<State>>, JsonSerializable {
+  readonly meta: AtomMeta = {};
   private pubSub = new PubSub<Atom<State>>();
   private _state!: State;
 

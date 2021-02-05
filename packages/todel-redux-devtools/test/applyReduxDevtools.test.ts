@@ -1,4 +1,4 @@
-import { AnyStore } from "todel";
+import { AnyStore, Atom, AtomMeta } from "todel";
 import { CounterAtom, increase } from "todel-test-helpers/fixtures";
 import { mockMethod, mockStore } from "todel-test-helpers/helpers";
 import { applyReduxDevtools } from "../src";
@@ -60,6 +60,16 @@ describe("applyReduxDevtools", () => {
     expect(devtools.send).toHaveBeenCalledWith({ type: "> test" }, state);
   });
 
+  it("should ignore send() if atom has ignore meta flag", () => {
+    const atom = new IgnoreAtom(0);
+    const repo = { test: atom };
+    store = mockStore(repo);
+    applyDevtools();
+    atom.setNum(10);
+
+    expect(devtools.send).not.toHaveBeenCalled();
+  });
+
   function mockStoreJson(): void {
     mockMethod(store, "toJson").mockReturnValue(state);
   }
@@ -77,4 +87,13 @@ function mockDevtools(): ReduxDevtools {
     subscribe: jest.fn(),
     unsubscribe: jest.fn(),
   };
+}
+
+class IgnoreAtom extends Atom<number> {
+  meta: AtomMeta = {
+    devtool: { ignoreUpdate: true },
+  };
+  setNum(num: number): void {
+    this.updateState(() => num);
+  }
 }
