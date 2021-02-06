@@ -1,4 +1,4 @@
-export * from "./createAtomsHook";
+export * from "./createAtomHook";
 export * from "./createLocalAtomContext";
 export * from "./StoreProvider";
 export * from "./types";

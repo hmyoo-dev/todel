@@ -1,4 +1,4 @@
-import { createAtomsHook } from "@todel/react";
+import { createAtomHook } from "@todel/react";
 import { AsyncAtom, AsyncAtomState, idleAsyncAtomState } from "todel";
 import { NoteItem } from "../../dataTypes";
 
@@ -33,6 +33,6 @@ export class NotesAtom extends AsyncAtom<NotesAtomState, NoteItem[]> {
 
 export const notesAtomId = "NOTES";
 
-export const useNotesAtom = createAtomsHook((repo) => [
-  repo[notesAtomId] as NotesAtom,
-]);
+export const useNotesAtom = createAtomHook<NotesAtom>(
+  (repo) => repo[notesAtomId]
+);
