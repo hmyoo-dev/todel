@@ -16,7 +16,7 @@ export interface AsyncAtomState {
 
 export abstract class AsyncAtom<
   S extends AsyncAtomState = AsyncAtomState,
-  Result = void
+  Result = unknown
 > extends Atom<S> {
   isPending(): boolean {
     return this.state.status === AsyncStatus.Pending;
@@ -30,7 +30,7 @@ export abstract class AsyncAtom<
     return this.state.status === AsyncStatus.Failure;
   }
 
-  async updateWith(requestPromise: Promise<Result>): Promise<Result>;
+  async updateWith<T extends Result>(requestPromise: Promise<T>): Promise<T>;
   async updateWith<T>(
     requestPromise: Promise<T>,
     resultMapper: Func<T, Result>
