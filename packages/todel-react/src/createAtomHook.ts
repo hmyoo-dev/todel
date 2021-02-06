@@ -1,44 +1,52 @@
 /*
 eslint-disable
-  @typescript-eslint/ban-types,
   @typescript-eslint/no-explicit-any,
   @typescript-eslint/no-non-null-assertion
 */
 import { useContext } from "react";
 import { AnyAtom } from "todel";
 import { StoreContext } from "./StoreContext";
-import { EqualComparator } from "./types";
+import { EqualComparator, OmitMethods } from "./types";
 import { useAtomsSubscribe } from "./useAtomSubscribe";
 
-export interface UseAtomsOptions<A extends AnyAtom[], Result> {
-  selector(...atoms: A): Result;
-  equalityFn: EqualComparator<Result>;
+export interface AtomPicker<A extends AnyAtom> {
+  (repo: any): A;
 }
-
 export interface AtomsPicker<Atoms extends AnyAtom[]> {
   (repo: any): Atoms;
+}
+export interface AtomSelector<A extends AnyAtom, Result> {
+  (atom: A): Result;
 }
 export interface AtomsSelector<Atoms extends AnyAtom[], Result> {
   (...atoms: Atoms): Result;
 }
 
-type OmitMethods<T> = {
-  [key in keyof T]: T[key] extends Function ? never : T[key];
-};
+export function createAtomHook<A extends AnyAtom>(
+  pickAtoms: AtomPicker<A>
+): <Result>(
+  selector: AtomSelector<A, Result>,
+  equalityFn?: EqualComparator<Result>
+) => OmitMethods<Result>;
+export function createAtomHook<A extends AnyAtom, Result>(
+  pickAtoms: AtomPicker<A>,
+  selector: AtomSelector<A, Result>,
+  equalityFn?: EqualComparator<Result>
+): () => OmitMethods<Result>;
 
-export function createAtomsHook<A extends AnyAtom[]>(
+export function createAtomHook<A extends AnyAtom[]>(
   pickAtoms: AtomsPicker<A>
 ): <Result>(
   selector: AtomsSelector<A, Result>,
   equalityFn?: EqualComparator<Result>
 ) => OmitMethods<Result>;
-export function createAtomsHook<A extends AnyAtom[], Result>(
+export function createAtomHook<A extends AnyAtom[], Result>(
   pickAtoms: AtomsPicker<A>,
   selector: AtomsSelector<A, Result>,
   equalityFn?: EqualComparator<Result>
 ): () => OmitMethods<Result>;
 
-export function createAtomsHook(
+export function createAtomHook(
   pickAtoms: AtomsPicker<AnyAtom[]>,
   preSelector?: AtomsSelector<AnyAtom[], unknown>,
   preEqualityFn?: EqualComparator<unknown>
@@ -48,7 +56,7 @@ export function createAtomsHook(
 
     if (!store) throw new Error("Store is not provided");
 
-    const atoms = pickAtoms(store.atoms);
+    const atoms = [pickAtoms(store.atoms)].flat();
 
     return useAtomsSubscribe({
       atoms,

@@ -1,4 +1,4 @@
-import { createAtomsHook } from "@todel/react";
+import { createAtomHook } from "@todel/react";
 import { Atom } from "todel";
 import { Notice } from "../../dataTypes";
 
@@ -34,6 +34,6 @@ export class NoticesAtom extends Atom<NoticesAtomState> {
 
 export const noticesAtomId = "NOTICES";
 
-export const useNoticesAtom = createAtomsHook((repo) => [
-  repo[noticesAtomId] as NoticesAtom,
-]);
+export const useNoticesAtom = createAtomHook<NoticesAtom>(
+  (repo) => repo[noticesAtomId]
+);

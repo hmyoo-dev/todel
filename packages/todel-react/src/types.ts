@@ -1,3 +1,7 @@
+/*
+eslint-disable
+  @typescript-eslint/ban-types,
+*/
 import { AnyAtom } from "todel";
 
 export interface SingleAtomSelector<Repo, A extends AnyAtom> {
@@ -24,10 +28,6 @@ export interface EqualComparator<V> {
   (prev: V, next: V): boolean;
 }
 
-export interface UseDataHook<Data> {
-  (): Data;
-  <Value>(
-    selector: ValueSelector<Data, Value>,
-    equalityFn?: EqualComparator<Value>
-  ): Value;
-}
+export type OmitMethods<T> = {
+  [key in keyof T]: T[key] extends Function ? never : T[key];
+};

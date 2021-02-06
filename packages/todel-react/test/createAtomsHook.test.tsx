@@ -4,7 +4,7 @@ import { AnyStore } from "todel";
 import { CounterAtom } from "todel-test-helpers/fixtures";
 import { mockStore } from "todel-test-helpers/helpers";
 import { StoreProvider } from "../src";
-import { createAtomsHook } from "../src/createAtomsHook";
+import { createAtomHook } from "../src/createAtomHook";
 
 describe("createAtomsHook", () => {
   interface Repo {
@@ -31,7 +31,7 @@ describe("createAtomsHook", () => {
   }
 
   describe("Only atoms picker provided hook", () => {
-    const useCounters = createAtomsHook(selectCounters);
+    const useCounters = createAtomHook(selectCounters);
 
     it("should need selector", () => {
       const { result } = renderHook(() => useCounters((_, com) => com), {
@@ -43,7 +43,7 @@ describe("createAtomsHook", () => {
   });
 
   describe("Selector provided hook", () => {
-    const useTotalCount = createAtomsHook(
+    const useTotalCount = createAtomHook(
       selectCounters,
       (user, com) => user.state.count + com.state.count
     );
