@@ -13,7 +13,7 @@ export function mockMethod<
   return mock;
 }
 
-export function mockStore<Atoms>(
+export function mockStore<Atoms = unknown>(
   atoms: Atoms,
   controllers: Controller[] = []
 ): Store<Atoms> {

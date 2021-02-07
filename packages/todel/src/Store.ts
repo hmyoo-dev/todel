@@ -13,7 +13,7 @@ import type {
 } from "./types";
 
 type PayloadOrProvider<S> = StorePayload<S> | StorePayloadProvider<S>;
-export class Store<S> implements JsonSerializable {
+export class Store<S = unknown> implements JsonSerializable {
   private readonly _atoms: S;
   private readonly controllers: readonly Controller[];
   private readonly errorHandler: (this: this, err: unknown) => void;
