@@ -23,31 +23,31 @@ export interface AtomsSelector<Atoms extends AnyAtom[], Result> {
 }
 
 export function createAtomHook<A extends AnyAtom>(
-  pickAtoms: AtomPicker<A>
+  atomPicker: AtomPicker<A> | string
 ): <Result>(
   selector: AtomSelector<A, Result>,
   equalityFn?: EqualComparator<Result>
 ) => OmitMethods<Result>;
 export function createAtomHook<A extends AnyAtom, Result>(
-  pickAtoms: AtomPicker<A>,
+  atomPicker: AtomPicker<A> | string,
   selector: AtomSelector<A, Result>,
   equalityFn?: EqualComparator<Result>
 ): () => OmitMethods<Result>;
 
 export function createAtomHook<A extends AnyAtom[]>(
-  pickAtoms: AtomsPicker<A>
+  atomsPicker: AtomsPicker<A> | string[]
 ): <Result>(
   selector: AtomsSelector<A, Result>,
   equalityFn?: EqualComparator<Result>
 ) => OmitMethods<Result>;
 export function createAtomHook<A extends AnyAtom[], Result>(
-  pickAtoms: AtomsPicker<A>,
+  atomsPicker: AtomsPicker<A> | string[],
   selector: AtomsSelector<A, Result>,
   equalityFn?: EqualComparator<Result>
 ): () => OmitMethods<Result>;
 
 export function createAtomHook(
-  pickAtoms: AtomsPicker<AnyAtom[]>,
+  atomPicker: AtomsPicker<AnyAtom[]> | string | string[],
   preSelector?: AtomsSelector<AnyAtom[], unknown>,
   preEqualityFn?: EqualComparator<unknown>
 ): unknown {
@@ -55,6 +55,8 @@ export function createAtomHook(
     const store = useContext(StoreContext);
 
     if (!store) throw new Error("Store is not provided");
+
+    const pickAtoms = toPicker(atomPicker);
 
     const atoms = [pickAtoms(store.atoms)].flat();
 
@@ -64,4 +66,12 @@ export function createAtomHook(
       equalityFn,
     });
   };
+}
+
+function toPicker(
+  param: AtomsPicker<AnyAtom[]> | string | string[]
+): AtomsPicker<AnyAtom[]> {
+  if (typeof param === "function") return param;
+  if (Array.isArray(param)) return (repo: any) => param.map((key) => repo[key]);
+  return (repo: any) => repo[param];
 }
