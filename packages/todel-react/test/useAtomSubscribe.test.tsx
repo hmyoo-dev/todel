@@ -1,13 +1,13 @@
 import { act, renderHook } from "@testing-library/react-hooks";
-import { AnyAtom } from "todel";
-import { CounterAtom } from "todel-test-helpers/fixtures";
+import { IAnyAtom } from "todel";
+import { createCounterAtom, ICounterAtom } from "todel-test-helpers/fixtures";
 import { useAtomsSubscribe } from "../src/useAtomSubscribe";
 
 describe("useAtomSubscribe", () => {
-  let counter: CounterAtom;
+  let counter: ICounterAtom;
 
   beforeEach(() => {
-    counter = CounterAtom.fromCount(0);
+    counter = createCounterAtom({ initState: { count: 0 } });
   });
 
   it("should return selected value", () => {
@@ -18,7 +18,7 @@ describe("useAtomSubscribe", () => {
       })
     );
 
-    expect(result.current).toBe(counter);
+    expect(result.current.state).toEqual(counter.state);
   });
 
   it("should update when atom updated", () => {
@@ -30,12 +30,12 @@ describe("useAtomSubscribe", () => {
     );
 
     expect(result.current.state.count).toEqual(0);
-    act(() => counter.increase());
+    act(() => counter.modifiers.increase());
     expect(result.current.state.count).toEqual(1);
   });
 
   it("should optimize render with equality function", () => {
-    const render = jest.fn<CounterAtom, []>().mockImplementation(() =>
+    const render = jest.fn(() =>
       useAtomsSubscribe({
         atoms: [counter],
         selector: selectSingleCounter,
@@ -47,9 +47,9 @@ describe("useAtomSubscribe", () => {
 
     expect(result.current.state.count).toEqual(0);
 
-    act(() => counter.setCount(0));
-    act(() => counter.setCount(0));
-    act(() => counter.setCount(0));
+    act(() => counter.modifiers.setCount(0));
+    act(() => counter.modifiers.setCount(0));
+    act(() => counter.modifiers.setCount(0));
 
     expect(result.current.state.count).toEqual(0);
     expect(render).toHaveBeenCalledTimes(1);
@@ -72,6 +72,6 @@ describe("useAtomSubscribe", () => {
   });
 });
 
-function selectSingleCounter(atom: AnyAtom): CounterAtom {
-  return atom as CounterAtom;
+function selectSingleCounter(atom: IAnyAtom): ICounterAtom {
+  return atom as ICounterAtom;
 }

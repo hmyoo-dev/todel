@@ -1,5 +1,5 @@
 import React, { FC } from "react";
-import { useNoticesAtom } from "../model/atom/notice/NoticesAtom";
+import { useNoticesAtom } from "../model/atom/NoticesAtom";
 
 export const NotificationBar: FC = () => {
   const items = useNoticesAtom((atom) => atom.state.items);

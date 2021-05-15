@@ -1,4 +1,4 @@
-import { AnyAtom, AnyStore } from "todel";
+import { AnyAtom, AnyStore, AtomMeta } from "todel";
 import { ReduxDevtoolsOption } from "./types";
 
 export function applyReduxDevtools(
@@ -18,7 +18,8 @@ export function applyReduxDevtools(
 
   Object.entries(store.atoms as Record<string, AnyAtom>).forEach(
     ([key, atom]) => {
-      if (atom.meta.devtool?.ignoreUpdate) return;
+      const meta = (atom.meta ?? {}) as AtomMeta;
+      if (meta.devtool?.ignoreUpdate) return;
       atom.subscribe(() => {
         devtools.send({ type: `> ${key}` }, store.toJson());
       });

@@ -1,54 +1,66 @@
 import { act, renderHook } from "@testing-library/react-hooks";
 import React, { FC } from "react";
-import { CounterAtom } from "todel-test-helpers/fixtures";
+import { createCounterAtom, ICounterAtom } from "todel-test-helpers/fixtures";
 import { createLocalAtomContext } from "../src/createLocalAtomContext";
 
 describe("createLocalAtomContext", () => {
-  const { Provider, useLocalAtom } = createLocalAtomContext<CounterAtom>();
+  const {
+    Provider,
+    useLocalAtomData,
+    useLocalAtomModifiers,
+  } = createLocalAtomContext<ICounterAtom>();
 
-  let counter: CounterAtom;
+  let counter: ICounterAtom;
   let wrapper: FC;
 
   beforeEach(() => {
-    counter = CounterAtom.fromCount(0);
+    counter = createCounterAtom({ initState: { count: 0 } });
     assignWrapper();
   });
 
   it("should return provided atom", () => {
-    const { result } = renderHook(() => useLocalAtom(), { wrapper });
-    expect(result.current).toBe(counter);
+    const { result } = renderHook(() => useLocalAtomData(), { wrapper });
+    expect(result.current.state).toEqual({ count: 0 });
   });
 
-  it("should be able to select value", () => {
+  it("should be reactive", () => {
     const { result } = renderHook(
-      () => useLocalAtom((atom) => atom.state.count),
+      () => {
+        const count = useLocalAtomData((atom) => atom.state.count);
+        const modifiers = useLocalAtomModifiers();
+        return { count, modifiers };
+      },
       { wrapper }
     );
 
-    expect(result.current).toBe(0);
-    act(() => counter.increase());
-    expect(result.current).toBe(1);
+    expect(result.current.count).toBe(0);
+    act(() => result.current.modifiers.increase());
+    expect(result.current.count).toBe(1);
   });
 
   it("should not render when selected value is not changed", () => {
-    const renderer = jest
-      .fn<number, []>()
-      .mockImplementation(() => useLocalAtom((atom) => atom.state.count));
+    const renderer = jest.fn(() => {
+      const count = useLocalAtomData((atom) => atom.state.count);
+      const modifiers = useLocalAtomModifiers();
+      return { count, modifiers };
+    });
 
     const { result } = renderHook(renderer, { wrapper });
 
-    expect(result.current).toBe(0);
-    act(() => counter.setCount(0));
-    act(() => counter.setCount(0));
-    act(() => counter.setCount(0));
+    expect(result.current.count).toBe(0);
+    act(() => result.current.modifiers.setCount(0));
+    act(() => result.current.modifiers.setCount(0));
+    act(() => result.current.modifiers.setCount(0));
 
     expect(renderer).toHaveBeenCalledTimes(1);
   });
 
   it("should throw when atom is not provided", () => {
-    const { result } = renderHook(() => useLocalAtom());
+    const { result: dataResult } = renderHook(() => useLocalAtomData());
+    const { result: modResult } = renderHook(() => useLocalAtomModifiers());
 
-    expect(result.error).toBeInstanceOf(Error);
+    expect(dataResult.error).toBeInstanceOf(Error);
+    expect(modResult.error).toBeInstanceOf(Error);
   });
 
   function assignWrapper(): void {

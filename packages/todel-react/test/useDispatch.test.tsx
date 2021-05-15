@@ -1,24 +1,29 @@
 import { act, renderHook } from "@testing-library/react-hooks";
 import React, { FC } from "react";
-import { counterStoreFixture, increase } from "todel-test-helpers/fixtures";
+import { Store } from "todel";
+import { increase } from "todel-test-helpers/fixtures";
 import { StoreProvider } from "../src/StoreProvider";
 import { useDispatch } from "../src/useDispatch";
 
 describe("useDispatch", () => {
   it("should dispatch to store", () => {
-    const store = counterStoreFixture();
-    const { counter } = store.services;
+    const store = new Store({
+      atoms: {},
+      actionHandlers: [],
+    });
     const Wrapper: FC = ({ children }) => (
       <StoreProvider store={store}>{children}</StoreProvider>
     );
 
+    const action = increase();
+    const consumer = jest.fn();
+    store.subscribeAction(consumer);
+
     const { result } = renderHook(() => useDispatch(), { wrapper: Wrapper });
 
-    expect(counter.state.count).toEqual(0);
+    act(() => result.current(action));
 
-    act(() => result.current(increase()));
-
-    expect(counter.state.count).toEqual(1);
+    expect(consumer).toHaveBeenCalledWith(action);
   });
 
   it("should throw error if store is not provided", () => {

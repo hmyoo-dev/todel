@@ -1,10 +1,10 @@
 import React, { FC } from "react";
 import { render } from "react-dom";
 import { CounterControl, CounterCount } from "./components";
-import { CounterAtom, CounterProvider } from "./CounterAtom";
+import { CounterProvider, createCounterAtom } from "./CounterAtom";
 
 const App: FC = () => {
-  const counterAtom = CounterAtom.fromCount(0);
+  const counterAtom = createCounterAtom();
 
   return (
     <CounterProvider atom={counterAtom}>

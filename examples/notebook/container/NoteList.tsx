@@ -1,13 +1,10 @@
 import React, { FC } from "react";
-import { useNotesAtom } from "../model/atom/note/NotesAtom";
+import { useNotesAtom } from "../model/atom/NotesAtom";
 
 export const NoteList: FC = () => {
-  const { notes, pending } = useNotesAtom((atom) => ({
-    notes: atom.state.notes,
-    pending: atom.isPending(),
-  }));
+  const { notes, pendingUpdate } = useNotesAtom().state;
 
-  if (pending) return <div>Loading...</div>;
+  if (pendingUpdate) return <div>Loading...</div>;
 
   const noteNodes = notes.map(({ id, title, content }) => (
     <li key={id}>
