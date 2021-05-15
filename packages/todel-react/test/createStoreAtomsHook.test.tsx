@@ -1,12 +1,12 @@
 import { renderHook } from "@testing-library/react-hooks";
 import React, { FC } from "react";
 import { AnyStore } from "todel";
-import { CounterAtom } from "todel-test-helpers/fixtures";
+import { CounterAtom, createCounterAtom } from "todel-test-helpers/fixtures";
 import { mockStore } from "todel-test-helpers/helpers";
-import { StoreProvider } from "../src";
-import { createAtomHook } from "../src/createAtomHook";
+import { createStoreAtomHook } from "../src/createStoreAtomHook";
+import { StoreProvider } from "../src/StoreProvider";
 
-describe("createAtomsHook", () => {
+describe("createStoreAtomsHook", () => {
   const userCounterId = "userCounter";
   const comCounterId = "comCounter";
 
@@ -17,8 +17,8 @@ describe("createAtomsHook", () => {
   let wrapper: FC;
 
   beforeEach(() => {
-    userCounter = CounterAtom.fromCount(1);
-    comCounter = CounterAtom.fromCount(2);
+    userCounter = createCounterAtom({ initState: { count: 1 } });
+    comCounter = createCounterAtom({ initState: { count: 2 } });
     store = mockStore({
       [userCounterId]: userCounter,
       [comCounterId]: comCounter,
@@ -32,16 +32,13 @@ describe("createAtomsHook", () => {
 
   describe("AtomPicker", () => {
     it("should be able to pick by name", () => {
-      const useUserCounter = createAtomHook<CounterAtom>(userCounterId);
-      const { result } = renderHook(
-        () => useUserCounter((atom) => atom.state.count),
-        { wrapper }
-      );
-      expect(result.current).toBe(1);
+      const useUserCounter = createStoreAtomHook<CounterAtom>(userCounterId);
+      const { result } = renderHook(() => useUserCounter(), { wrapper });
+      expect(result.current.state.count).toBe(1);
     });
 
     it("should be able to pick atoms with names", () => {
-      const useCounters = createAtomHook<CounterAtom[]>([
+      const useCounters = createStoreAtomHook<CounterAtom[]>([
         userCounterId,
         comCounterId,
       ]);
@@ -55,7 +52,9 @@ describe("createAtomsHook", () => {
     });
 
     it("should be able to pick by function", () => {
-      const useCounter = createAtomHook<CounterAtom>((it) => it[comCounterId]);
+      const useCounter = createStoreAtomHook<CounterAtom>(
+        (it) => it[comCounterId]
+      );
       const { result } = renderHook(
         () => useCounter((atom) => atom.state.count),
         { wrapper }
@@ -65,7 +64,7 @@ describe("createAtomsHook", () => {
   });
 
   describe("Selector provided hook", () => {
-    const useTotalCount = createAtomHook<CounterAtom[], number>(
+    const useTotalCount = createStoreAtomHook<CounterAtom[], number>(
       [userCounterId, comCounterId],
       (user, com) => user.state.count + com.state.count
     );

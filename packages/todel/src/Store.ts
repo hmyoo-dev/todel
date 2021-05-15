@@ -1,10 +1,10 @@
-import { combineActionHandlers } from "./controllerHelpers";
+import { combineActionHandlers } from "./actionHandlerHelpers";
 import { PubSub } from "./PubSub";
 import type {
   Action,
   ActionEffector,
+  ActionHandler,
   Consumer,
-  Controller,
   JsonSerializable,
   StorePayload,
   StorePayloadProvider,
@@ -15,7 +15,7 @@ import type {
 type PayloadOrProvider<S> = StorePayload<S> | StorePayloadProvider<S>;
 export class Store<S = unknown> implements JsonSerializable {
   private readonly _atoms: S;
-  private readonly controllers: readonly Controller[];
+  private readonly actionHandlers: readonly ActionHandler[];
   private readonly errorHandler: (this: this, err: unknown) => void;
   private readonly actionEmitter = new PubSub<Action>();
 
@@ -27,10 +27,14 @@ export class Store<S = unknown> implements JsonSerializable {
   constructor(payloadOrProvider: PayloadOrProvider<S>) {
     const payload = getPayload(payloadOrProvider);
 
-    const { atoms, controllers, errorHandler = defaultErrorHandler } = payload;
+    const {
+      atoms,
+      actionHandlers,
+      errorHandler = defaultErrorHandler,
+    } = payload;
 
     this._atoms = Object.freeze(atoms);
-    this.controllers = Object.freeze(controllers);
+    this.actionHandlers = Object.freeze(actionHandlers);
     this.errorHandler = errorHandler.bind(this);
 
     this.init();
@@ -45,10 +49,6 @@ export class Store<S = unknown> implements JsonSerializable {
     return this._atoms;
   }
 
-  get services(): S {
-    return this.atoms;
-  }
-
   subscribeAction(subscriber: Consumer<Action>): Subscription {
     return this.outerActionEmitter.subscribe(subscriber);
   }
@@ -57,19 +57,15 @@ export class Store<S = unknown> implements JsonSerializable {
     const result: Record<string, unknown> = {};
 
     // TODO: atoms is recursive.
-    Object.entries(this.services).forEach(([key, service]) => {
-      result[key] = service.toJson(option);
+    Object.entries(this.atoms).forEach(([key, atom]) => {
+      result[key] = atom.toJson(option);
     });
 
     return result;
   }
 
   private init(): void {
-    const handlers = this.controllers.map((controller) =>
-      controller.getHandler().bind(controller)
-    );
-
-    const combinedHandler = combineActionHandlers(handlers);
+    const combinedHandler = combineActionHandlers(this.actionHandlers);
     const effector: ActionEffector = Object.freeze({
       dispatch: this.dispatch,
       emitError: this.errorHandler,

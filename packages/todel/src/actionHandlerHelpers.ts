@@ -22,7 +22,7 @@ export function actionHandler<P, M extends Meta = Meta>(
 }
 
 export function combineActionHandlers(
-  handlers: ActionHandler[]
+  handlers: readonly ActionHandler[]
 ): CombinedActionHandler {
   const combineActionHandler: CombinedActionHandler = (action, effector) => {
     const promiseResults = handlers

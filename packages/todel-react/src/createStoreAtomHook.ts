@@ -1,57 +1,61 @@
 /*
 eslint-disable
   @typescript-eslint/no-explicit-any,
-  @typescript-eslint/no-non-null-assertion
 */
 import { useContext } from "react";
-import { AnyAtom } from "todel";
+import { AnyAtom, ReadonlyAtom, ReadonlyAtoms } from "todel";
 import { StoreContext } from "./StoreContext";
-import { EqualComparator, OmitMethods } from "./types";
+import { EqualComparator } from "./types";
 import { useAtomsSubscribe } from "./useAtomSubscribe";
 
 export interface AtomPicker<A extends AnyAtom> {
   (repo: any): A;
 }
-export interface AtomsPicker<Atoms extends AnyAtom[]> {
-  (repo: any): Atoms;
-}
-export interface AtomSelector<A extends AnyAtom, Result> {
-  (atom: A): Result;
-}
-export interface AtomsSelector<Atoms extends AnyAtom[], Result> {
-  (...atoms: Atoms): Result;
+
+export interface AtomsPicker<Arr extends AnyAtom[]> {
+  (repo: any): Arr;
 }
 
-export function createAtomHook<A extends AnyAtom>(
+export interface AtomSelector<A extends AnyAtom, Result> {
+  (atom: ReadonlyAtom<A>): Result;
+}
+export interface AtomsSelector<Atoms extends AnyAtom[], Result> {
+  (...atoms: ReadonlyAtoms<Atoms>): Result;
+}
+
+export interface UseAtomSelector<A extends AnyAtom> {
+  (): ReadonlyAtom<A>;
+  <R>(selector: AtomSelector<A, R>, equalityFn?: EqualComparator<R>): R;
+}
+
+export function createStoreAtomHook<A extends AnyAtom>(
   atomPicker: AtomPicker<A> | string
-): <Result>(
-  selector: AtomSelector<A, Result>,
-  equalityFn?: EqualComparator<Result>
-) => OmitMethods<Result>;
-export function createAtomHook<A extends AnyAtom, Result>(
+): UseAtomSelector<A>;
+
+export function createStoreAtomHook<A extends AnyAtom, Result>(
   atomPicker: AtomPicker<A> | string,
   selector: AtomSelector<A, Result>,
   equalityFn?: EqualComparator<Result>
-): () => OmitMethods<Result>;
+): () => Result;
 
-export function createAtomHook<A extends AnyAtom[]>(
+export function createStoreAtomHook<A extends AnyAtom[]>(
   atomsPicker: AtomsPicker<A> | string[]
 ): <Result>(
   selector: AtomsSelector<A, Result>,
   equalityFn?: EqualComparator<Result>
-) => OmitMethods<Result>;
-export function createAtomHook<A extends AnyAtom[], Result>(
+) => Result;
+export function createStoreAtomHook<A extends AnyAtom[], Result>(
   atomsPicker: AtomsPicker<A> | string[],
   selector: AtomsSelector<A, Result>,
   equalityFn?: EqualComparator<Result>
-): () => OmitMethods<Result>;
+): () => Result;
 
-export function createAtomHook(
+export function createStoreAtomHook(
   atomPicker: AtomsPicker<AnyAtom[]> | string | string[],
-  preSelector?: AtomsSelector<AnyAtom[], unknown>,
+  preSelector: AtomsSelector<AnyAtom[], unknown> = (atoms) => atoms,
   preEqualityFn?: EqualComparator<unknown>
 ): unknown {
-  return (selector = preSelector!, equalityFn = preEqualityFn) => {
+  return (selector = preSelector, equalityFn = preEqualityFn) => {
     const store = useContext(StoreContext);
 
     if (!store) throw new Error("Store is not provided");

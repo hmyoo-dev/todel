@@ -1,12 +1,15 @@
 import { useDispatch } from "@todel/react";
 import React, { FC } from "react";
 import { postNote } from "../model/actions";
-import { useNoteDraftAtom } from "../model/atom/note/NoteDraftAtom";
-import { useNotePostAtom } from "../model/atom/note/NotePostAtom";
+import {
+  useNoteDraftAtomData,
+  useNoteDraftAtomModifiers,
+} from "../model/atom/NoteDraftAtom";
+import { useNotesAtom } from "../model/atom/NotesAtom";
 
 export const NoteForm: FC = () => {
   const dispatch = useDispatch();
-  const pending = useNotePostAtom((atom) => atom.isPending());
+  const pending = useNotesAtom((atom) => atom.state.pendingUpdate);
 
   return (
     <form
@@ -33,32 +36,28 @@ export const NoteForm: FC = () => {
 };
 
 const TitleInput: FC = () => {
-  const { title, updateDraft } = useNoteDraftAtom((atom) => ({
-    title: atom.state.draft.title,
-    updateDraft: atom.updateDraft,
-  }));
+  const title = useNoteDraftAtomData((atom) => atom.state.draft.title);
+  const { update } = useNoteDraftAtomModifiers();
 
   return (
     <input
       type="text"
       value={title}
-      onChange={(e) => updateDraft({ title: e.currentTarget.value })}
+      onChange={(e) => update({ title: e.currentTarget.value })}
     />
   );
 };
 
 const ContentInput: FC = () => {
-  const { content, updateDraft } = useNoteDraftAtom((atom) => ({
-    content: atom.state.draft.content,
-    updateDraft: atom.updateDraft,
-  }));
+  const content = useNoteDraftAtomData((atom) => atom.state.draft.content);
+  const { update } = useNoteDraftAtomModifiers();
 
   return (
     <textarea
       cols={30}
       rows={10}
       value={content}
-      onChange={(e) => updateDraft({ content: e.target.value })}
+      onChange={(e) => update({ content: e.target.value })}
     ></textarea>
   );
 };

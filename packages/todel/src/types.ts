@@ -1,4 +1,3 @@
-import type { Atom } from "./Atom";
 import type { Store } from "./Store";
 
 /** Common types */
@@ -61,9 +60,6 @@ export interface StateModifier<State> {
   (current: State): State;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type AnyAtom = Atom<any>;
-
 export interface AtomDevtoolOption {
   ignoreUpdate?: boolean;
 }
@@ -72,7 +68,7 @@ export interface AtomMeta {
   devtool?: AtomDevtoolOption;
 }
 
-/** Controller types */
+/** ActionHandler types */
 export interface ActionEffector {
   emitError: Consumer<Error>;
   dispatch: Consumer<Action>;
@@ -90,14 +86,10 @@ export interface CombinedActionHandler {
   (action: Action<unknown, Meta>, effector: ActionEffector): Promise<unknown>;
 }
 
-export interface Controller {
-  getHandler(): ActionHandler;
-}
-
 /** Store types */
 export interface StorePayload<S> {
   atoms: S;
-  controllers: Controller[];
+  actionHandlers: ActionHandler[];
   errorHandler?: Consumer<unknown>;
 }
 

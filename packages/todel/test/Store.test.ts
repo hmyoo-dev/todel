@@ -1,35 +1,30 @@
 import { actionCreator } from "../src/actionCreators";
 import { Store } from "../src/Store";
-import type {
-  ActionHandler,
-  Consumer,
-  Controller,
-  ErrorEmitter,
-} from "../src/types";
-import { CounterAtom } from "./fixtures/Atom.fixtures";
+import type { ActionHandler, Consumer } from "../src/types";
+import { CounterAtom, createCounterAtom } from "./fixtures/atoms.fixtures";
 
 describe("Store", () => {
   it("can be created by provider", () => {
     const store = new Store(() => {
-      const counter = new CounterAtom({ count: 10 });
+      const counter = createCounterAtom({ initState: 10 });
       return {
         atoms: { counter },
-        controllers: [new CounterController(counter)],
+        actionHandlers: [actionHandler(counter)],
       };
     });
 
-    expect(store.atoms.counter.state.count).toEqual(10);
+    expect(store.atoms.counter.state).toEqual(10);
   });
 
   it("should update state when dispatch a action", () => {
     const store = createStore();
-    const { counter } = store.services;
+    const { counter } = store.atoms;
 
-    expect(counter.state.count).toEqual(0);
+    expect(counter.state).toEqual(0);
 
     store.dispatch(increase());
 
-    expect(counter.state.count).toEqual(1);
+    expect(counter.state).toEqual(1);
   });
 
   it("can subscribe actions", () => {
@@ -96,7 +91,7 @@ describe("Store", () => {
     const store = createStore();
     const result = store.toJson();
 
-    expect(result).toEqual({ counter: { count: 0 } });
+    expect(result).toEqual({ counter: 0 });
   });
 
   it("could subscribe action emitter", (done) => {
@@ -127,41 +122,32 @@ const throwError = actionCreator("throwError");
 const throwAsyncError = actionCreator("throwAsyncError");
 const emitErr = actionCreator("emitError");
 
-// controllers
-class CounterController implements Controller {
-  constructor(private counter: CounterAtom) {}
+function actionHandler(counter: CounterAtom): ActionHandler {
+  return (action, { emitError, dispatch }) => {
+    if (increase.match(action)) {
+      return counter.modifiers.increase();
+    }
+    if (decrease.match(action)) {
+      return counter.modifiers.decrease();
+    }
+    if (triggerDecrease.match(action)) {
+      return dispatch(decrease());
+    }
+    if (throwError.match(action)) {
+      throw new Error("test");
+    }
+    if (throwAsyncError.match(action)) {
+      return throwAsync();
+    }
+    if (emitErr.match(action)) {
+      return emitError(new Error("test"));
+    }
+  };
+}
 
-  getHandler(): ActionHandler {
-    return (action, { emitError, dispatch }) => {
-      if (increase.match(action)) {
-        return this.counter.increase();
-      }
-      if (decrease.match(action)) {
-        return this.counter.decrease();
-      }
-      if (triggerDecrease.match(action)) {
-        return dispatch(decrease());
-      }
-      if (throwError.match(action)) {
-        throw new Error("test");
-      }
-      if (throwAsyncError.match(action)) {
-        return this.throwAsync();
-      }
-      if (emitErr.match(action)) {
-        return this.emitError(emitError);
-      }
-    };
-  }
-
-  async throwAsync(): Promise<void> {
-    await wait(3);
-    throw new Error("async test");
-  }
-
-  emitError(emitErr: ErrorEmitter): void {
-    emitErr(new Error("test"));
-  }
+async function throwAsync(): Promise<void> {
+  await wait(3);
+  throw new Error("async test");
 }
 
 interface AtomsRepo {
@@ -169,11 +155,11 @@ interface AtomsRepo {
 }
 
 function createStore(errorHandler?: Consumer<unknown>): Store<AtomsRepo> {
-  const counter = new CounterAtom({ count: 0 });
+  const counter = createCounterAtom({ initState: 0 });
 
   return new Store<AtomsRepo>({
     atoms: { counter },
-    controllers: [new CounterController(counter)],
+    actionHandlers: [actionHandler(counter)],
     errorHandler,
   });
 }

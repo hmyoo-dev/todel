@@ -1,5 +1,5 @@
 import { actionCreator } from "../src/actionCreators";
-import { actionHandler, anyMatchActions } from "../src/controllerHelpers";
+import { actionHandler, anyMatchActions } from "../src/actionHandlerHelpers";
 import { ActionEffector } from "../src/types";
 
 describe("createActionEventHandler", () => {

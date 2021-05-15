@@ -1,27 +1,33 @@
 import { createLocalAtomContext } from "@todel/react";
-import { Atom } from "todel";
+import { atomCreator, AtomSetupPayload } from "todel";
 
 export interface CounterState {
   count: number;
 }
 
-export class CounterAtom extends Atom<CounterState> {
-  static fromCount(count: number): CounterAtom {
-    return new CounterAtom({ count });
+export const createCounterAtom = atomCreator(
+  ({ initState = { count: 0 }, setState }: AtomSetupPayload<CounterState>) => {
+    return {
+      initState,
+      modifiers: {
+        increase(): void {
+          setState((state) => ({ ...state, count: state.count + 1 }));
+        },
+        decrease(): void {
+          setState((state) => ({ ...state, count: state.count - 1 }));
+        },
+        reset(): void {
+          setState((state) => ({ ...state, count: 0 }));
+        },
+      },
+    };
   }
+);
 
-  increase = (): void => {
-    this.updateState((state) => ({ ...state, count: state.count + 1 }));
-  };
-  decrease = (): void => {
-    this.updateState((state) => ({ ...state, count: state.count - 1 }));
-  };
-  reset = (): void => {
-    this.updateState((state) => ({ ...state, count: 0 }));
-  };
-}
+export type CounterAtom = ReturnType<typeof createCounterAtom>;
 
 export const {
   Provider: CounterProvider,
-  useLocalAtom: useCounterAtom,
+  useLocalAtomData: useCounterAtomData,
+  useLocalAtomModifiers: useCounterAtomModifiers,
 } = createLocalAtomContext<CounterAtom>();

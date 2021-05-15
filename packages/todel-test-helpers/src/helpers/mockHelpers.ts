@@ -1,4 +1,4 @@
-import { Controller, Store } from "todel";
+import { ActionHandler, Store } from "todel";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 type AnyFunc = (...args: any[]) => any;
@@ -15,7 +15,7 @@ export function mockMethod<
 
 export function mockStore<Atoms = unknown>(
   atoms: Atoms,
-  controllers: Controller[] = []
+  actionHandlers: ActionHandler[] = []
 ): Store<Atoms> {
-  return new Store({ atoms, controllers });
+  return new Store({ atoms, actionHandlers });
 }
