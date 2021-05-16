@@ -1,11 +1,10 @@
-import {
-  Action,
+import type { Action } from "./types/actionCreator.type";
+import type {
   ActionHandler,
   ActionHandlerOption,
   CombinedActionHandler,
-  Guard,
-  Meta,
-} from "./types";
+} from "./types/actionHandler.type";
+import type { Guard, Meta } from "./types/common.type";
 
 export function actionHandler<P, M extends Meta = Meta>(
   option: ActionHandlerOption<P, M>

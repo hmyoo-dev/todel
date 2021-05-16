@@ -1,11 +1,9 @@
 import type {
   Action,
   ActionCreator,
-  Func,
-  Guard,
-  Meta,
   PrepareActionCreator,
-} from "./types";
+} from "./types/actionCreator.type";
+import type { Func, Guard, Meta } from "./types/common.type";
 
 export function actionCreator<P = void>(type: string): ActionCreator<P, Meta>;
 export function actionCreator<M extends Meta, P = void>(

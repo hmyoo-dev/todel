@@ -1,18 +1,18 @@
-import type { JsonSerializable, Subscribable } from "./types";
+import type { JsonSerializable, Meta, Subscribable } from "./common.type";
 
 type ConditionalPartial<T, R> = Partial<T> extends T ? Partial<R> : R;
 type OptionalVoid<T> = Partial<T> extends T ? void | T : T;
 
-export interface Atom<State, Computed, Modifiers, M>
+export interface Atom<State, Computed, Modifiers, M = Meta>
   extends JsonSerializable,
-    Subscribable<Atom<State, Computed, Modifiers, M>> {
+    Subscribable<[Atom<State, Computed, Modifiers, M>, string | null]> {
   state: State;
   computed: Computed;
   modifiers: Modifiers;
   meta: M;
 }
 
-export interface AtomDraft<State, Computed, Modifiers, M>
+export interface AtomDraft<State, Computed, Modifiers, M = Meta>
   extends Partial<JsonSerializable> {
   initState: State;
   computed?: Computed;
@@ -20,13 +20,13 @@ export interface AtomDraft<State, Computed, Modifiers, M>
   meta?: M;
 }
 
-export interface StateUpdater<State> {
+export interface StateModifier<State> {
   (current: State): State;
 }
 
 export interface AtomSetupPayload<State, Deps = void> {
   getState(): State;
-  setState(updater: StateUpdater<State>): void;
+  setState(modifier: StateModifier<State>, memo?: string): void;
   initState?: State;
   deps: Deps;
 }
@@ -57,6 +57,14 @@ export interface AtomCreator<State, Computed, Modifiers, M, Deps = void> {
     Modifiers,
     M
   >;
+}
+
+export interface AtomDevtoolOption {
+  ignoreUpdate?: boolean;
+}
+
+export interface AtomMeta {
+  devtool?: AtomDevtoolOption;
 }
 
 // Utils

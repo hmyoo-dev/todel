@@ -1,5 +1,5 @@
 import { atomCreator } from "../../src/atomCreator";
-import { AtomSetupPayload } from "../../src/atomCreator.type";
+import { AtomSetupPayload } from "../../src/types/atomCreator.type";
 
 export interface CounterDeps {
   step?: number;

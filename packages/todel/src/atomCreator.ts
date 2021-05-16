@@ -1,20 +1,19 @@
+import { PubSub } from "./PubSub";
 import type {
   Atom,
   AtomCreator,
   AtomCreatorPayload,
   AtomSetup,
-  StateUpdater,
-} from "./atomCreator.type";
-import { PubSub } from "./PubSub";
-import type { Consumer, Subscribable, Subscription } from "./types";
+  StateModifier,
+} from "./types/atomCreator.type";
+import type {
+  Meta,
+  MultiConsumer,
+  Subscribable,
+  Subscription,
+} from "./types/common.type";
 
-export function atomCreator<
-  State,
-  Computed,
-  Modifiers,
-  M = unknown,
-  Deps = void
->(
+export function atomCreator<State, Computed, Modifiers, M = Meta, Deps = void>(
   setup: AtomSetup<State, Computed, Modifiers, M, Deps>
 ): AtomCreator<State, Computed, Modifiers, M, Deps> {
   return (_payload) => {
@@ -25,9 +24,7 @@ export function atomCreator<
 
     const { getState, setState, subscribe } = new ReactiveState<State>();
     const draft = setup({ initState, getState, setState, deps: deps as Deps });
-    const atomPubSub = new PubSub<ResultAtom>();
-
-    setState(() => draft.initState);
+    const atomPubSub = new PubSub<ResultAtom, [string | null]>();
 
     const atom: ResultAtom = {
       get state() {
@@ -36,7 +33,7 @@ export function atomCreator<
       toJson() {
         return this.state;
       },
-      subscribe(consumer: Consumer<ResultAtom>): Subscription {
+      subscribe(consumer): Subscription {
         return atomPubSub.subscribe(consumer);
       },
       meta: {} as M,
@@ -45,25 +42,29 @@ export function atomCreator<
       ...draft,
     };
 
-    subscribe(() => atomPubSub.publish(atom));
+    setState(() => draft.initState);
+    subscribe((memo) => atomPubSub.publish(atom, memo));
     return atom;
   };
 }
 
-class ReactiveState<State> implements Subscribable<void> {
-  private pubSub = new PubSub<void>();
+class ReactiveState<State> implements Subscribable<[string | null]> {
+  private pubSub = new PubSub<string | null>();
   private state!: State;
 
   getState = (): State => {
     return this.state;
   };
 
-  setState = (updater: StateUpdater<State>): void => {
+  setState = (
+    updater: StateModifier<State>,
+    memo: string | null = null
+  ): void => {
     this.state = updater(this.state);
-    this.pubSub.publish();
+    this.pubSub.publish(memo);
   };
 
-  subscribe = (subscriber: Consumer<void>): Subscription => {
+  subscribe = (subscriber: MultiConsumer<[string | null]>): Subscription => {
     return this.pubSub.subscribe(subscriber);
   };
 }

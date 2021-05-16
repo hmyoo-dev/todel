@@ -31,14 +31,17 @@ export const createNotesAtom = atomCreator(
       initState,
       modifiers: {
         async fetchNotes(): Promise<NoteItem[]> {
-          setState((state) => ({ ...state, fetching: true }));
+          setState((state) => ({ ...state, fetching: true }), "fetchStarted");
           try {
             const res = await ajax.get<NoteItem[]>("/api/notebook/");
             const notes = res.data;
-            setState((state) => ({ ...state, fetching: false, notes }));
+            setState(
+              (state) => ({ ...state, fetching: false, notes }),
+              "fetchDone"
+            );
             return notes;
           } catch (err) {
-            setState((state) => ({ ...state, fetching: false }));
+            setState((state) => ({ ...state, fetching: false }), "fetchFailed");
             throw err;
           }
         },
