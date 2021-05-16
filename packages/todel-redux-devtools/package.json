@@ -24,6 +24,6 @@
     "README.md"
   ],
   "peerDependencies": {
-    "todel": "^0.8.0"
+    "todel": "^0.10.0"
   }
 }
