@@ -20,8 +20,9 @@ export function applyReduxDevtools(
     ([key, atom]) => {
       const meta = (atom.meta ?? {}) as AtomMeta;
       if (meta.devtool?.ignoreUpdate) return;
-      atom.subscribe(() => {
-        devtools.send({ type: `> ${key}` }, store.toJson());
+      atom.subscribe((_, memo) => {
+        const desc = memo ? ` (${memo})` : "";
+        devtools.send({ type: `> ${key}${desc}` }, store.toJson());
       });
     }
   );

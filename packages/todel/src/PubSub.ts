@@ -1,13 +1,22 @@
-import type { Consumer, Subscribable, Subscription } from "./types";
+import type {
+  MultiConsumer,
+  Subscribable,
+  Subscription,
+} from "./types/common.type";
 
-export class PubSub<Value> implements Subscribable<Value> {
-  private subscriberSet = new Set<Consumer<Value>>();
+export class PubSub<
+  V,
+  Others extends unknown[] = [],
+  Values extends unknown[] = [V, ...Others]
+> implements Subscribable<Values> {
+  private subscriberSet = new Set<MultiConsumer<Values>>();
 
-  publish(value: Value): void {
-    this.subscriberSet.forEach((subscriber) => subscriber(value));
+  publish(value: V, ...others: Others): void {
+    const values = [value, ...others] as Values;
+    this.subscriberSet.forEach((subscriber) => subscriber(...values));
   }
 
-  subscribe(subscriber: Consumer<Value>): Subscription {
+  subscribe(subscriber: MultiConsumer<Values>): Subscription {
     this.subscriberSet.add(subscriber);
     return {
       unsubscribe: () => this.subscriberSet.delete(subscriber),

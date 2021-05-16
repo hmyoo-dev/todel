@@ -32,7 +32,7 @@ describe("atomCreator", () => {
       counter.modifiers.increase();
 
       expect(subscriber).toHaveBeenCalledTimes(1);
-      expect(subscriber).toHaveBeenCalledWith(counter);
+      expect(subscriber).toHaveBeenCalledWith(counter, null);
     });
 
     it("should have computed value", () => {

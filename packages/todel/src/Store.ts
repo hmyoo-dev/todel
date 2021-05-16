@@ -1,16 +1,14 @@
 import { combineActionHandlers } from "./actionHandlerHelpers";
 import { PubSub } from "./PubSub";
+import { Action } from "./types/actionCreator.type";
+import { ActionEffector, ActionHandler } from "./types/actionHandler.type";
 import type {
-  Action,
-  ActionEffector,
-  ActionHandler,
   Consumer,
   JsonSerializable,
-  StorePayload,
-  StorePayloadProvider,
   Subscription,
   ToJsonOption,
-} from "./types";
+} from "./types/common.type";
+import { StorePayload, StorePayloadProvider } from "./types/store.type";
 
 type PayloadOrProvider<S> = StorePayload<S> | StorePayloadProvider<S>;
 export class Store<S = unknown> implements JsonSerializable {
