@@ -1,6 +1,6 @@
 {
   "name": "@todel/react",
-  "version": "0.9.1",
+  "version": "0.10.0",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "typings": "dist/index.d.ts",
@@ -33,6 +33,6 @@
     "@types/react-dom": "^16.9.9",
     "react": "^17.0.1",
     "react-test-renderer": "^17.0.1",
-    "todel-test-helpers": "0.1.1"
+    "todel-test-helpers": "^0.1.2"
   }
 }

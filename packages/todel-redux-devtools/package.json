@@ -1,6 +1,6 @@
 {
   "name": "@todel/redux-devtools",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "typings": "dist/index.d.ts",
