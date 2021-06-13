@@ -30,3 +30,50 @@ export const createCounterAtom = atomCreator((payload: CounterSetupPayload) => {
 });
 
 export type CounterAtom = ReturnType<typeof createCounterAtom>;
+
+export enum AjaxStatus {
+  Idle = "idle",
+  Pending = "pending",
+  Done = "done",
+  Failed = "failed",
+}
+export interface AjaxAtomState {
+  status: AjaxStatus;
+  data: string | null;
+  err: unknown | null;
+}
+
+export type AjaxAtomSetupPayload = AtomSetupPayload<AjaxAtomState>;
+
+export const createAjaxAtom = atomCreator((payload: AjaxAtomSetupPayload) => {
+  const {
+    initState = { status: AjaxStatus.Idle, data: null, err: null },
+    asyncSetState,
+  } = payload;
+
+  return {
+    initState,
+    modifiers: {
+      fetch(promise: Promise<string>, memo?: string): Promise<string> {
+        return asyncSetState({
+          promise,
+          memo,
+          started: (state) => {
+            state.status = AjaxStatus.Pending;
+          },
+          done: (state, result) => {
+            state.status = AjaxStatus.Done;
+            state.data = result;
+          },
+          failed: (state, err) => {
+            state.status = AjaxStatus.Failed;
+            state.err = err;
+          },
+        });
+      },
+      nothing(promise: Promise<string>): Promise<string> {
+        return asyncSetState({ promise });
+      },
+    },
+  };
+});

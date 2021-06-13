@@ -1,6 +1,7 @@
 import { produce } from "immer";
 import { PubSub } from "./PubSub";
 import type {
+  AsyncStateModifiers,
   Atom,
   AtomCreator,
   AtomCreatorPayload,
@@ -23,8 +24,16 @@ export function atomCreator<State, Computed, Modifiers, M = Meta, Deps = void>(
 
     type ResultAtom = Atom<State, Computed, Modifiers, M>;
 
-    const { getState, setState, subscribe } = new ReactiveState<State>();
-    const draft = setup({ initState, getState, setState, deps: deps as Deps });
+    const reactiveState = new ReactiveState<State>();
+    const { getState, setState, asyncSetState, subscribe } = reactiveState;
+
+    const draft = setup({
+      initState,
+      getState,
+      setState,
+      asyncSetState,
+      deps: deps as Deps,
+    });
     const atomPubSub = new PubSub<ResultAtom, [string | null]>();
 
     const atom: ResultAtom = {
@@ -45,6 +54,7 @@ export function atomCreator<State, Computed, Modifiers, M = Meta, Deps = void>(
 
     setState(() => draft.initState);
     subscribe((memo) => atomPubSub.publish(atom, memo));
+
     return atom;
   };
 }
@@ -63,6 +73,34 @@ class ReactiveState<State> implements Subscribable<[string | null]> {
   ): void => {
     this.state = produce(this.state, updater);
     this.pubSub.publish(memo);
+  };
+
+  asyncSetState = async <R>(
+    modifiers: AsyncStateModifiers<R, State>
+  ): Promise<R> => {
+    const { promise, memo: memoPrefix, started, done, failed } = modifiers;
+    const memo = memoPrefix
+      ? {
+          started: `${memoPrefix}/started`,
+          done: `${memoPrefix}/done`,
+          failed: `${memoPrefix}/failed`,
+        }
+      : {};
+
+    if (started) this.setState(started, memo?.started);
+
+    try {
+      const result = await promise;
+      if (done) {
+        this.setState((state) => done(state, result), memo?.done);
+      }
+      return result;
+    } catch (err) {
+      if (failed) {
+        this.setState((state) => failed(state, err), memo?.failed);
+      }
+      throw err;
+    }
   };
 
   subscribe = (subscriber: MultiConsumer<[string | null]>): Subscription => {

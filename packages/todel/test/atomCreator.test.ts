@@ -1,4 +1,8 @@
-import { createCounterAtom } from "./fixtures/atoms.fixtures";
+import {
+  AjaxStatus,
+  createAjaxAtom,
+  createCounterAtom,
+} from "./fixtures/atoms.fixtures";
 
 describe("atomCreator", () => {
   describe("atom", () => {
@@ -25,6 +29,56 @@ describe("atomCreator", () => {
 
       counter.modifiers.decrease();
       expect(counter.state).toBe(0);
+    });
+
+    describe("asyncModifier", () => {
+      test("success", async () => {
+        const atom = createAjaxAtom();
+
+        const pending = atom.modifiers.fetch(Promise.resolve("test"));
+        expect(atom.state.status).toEqual(AjaxStatus.Pending);
+
+        await pending;
+        const { status, data } = atom.state;
+        expect(status).toEqual(AjaxStatus.Done);
+        expect(data).toEqual("test");
+      });
+
+      test("failed", (done) => {
+        const atom = createAjaxAtom();
+        atom.modifiers.fetch(Promise.reject("err")).catch((err) => {
+          expect(atom.state.status).toEqual(AjaxStatus.Failed);
+          expect(err).toEqual("err");
+          done();
+        });
+      });
+
+      test("memo", async () => {
+        const atom = createAjaxAtom();
+        const subscriber = jest.fn();
+        atom.subscribe(subscriber);
+
+        await atom.modifiers.fetch(Promise.resolve("hello"), "foo");
+
+        const [started, done] = subscriber.mock.calls;
+        expect(started).toEqual([atom, "foo/started"]);
+        expect(done).toEqual([atom, "foo/done"]);
+      });
+
+      test("nothing-success", async () => {
+        const atom = createAjaxAtom();
+        await atom.modifiers.nothing(Promise.resolve("nothing"));
+        expect(atom.state.status).toEqual(AjaxStatus.Idle);
+      });
+
+      test("nothing-failed", (done) => {
+        const atom = createAjaxAtom();
+        atom.modifiers.nothing(Promise.reject("nothing")).catch((err) => {
+          expect(atom.state.status).toEqual(AjaxStatus.Idle);
+          expect(err).toEqual("nothing");
+          done();
+        });
+      });
     });
 
     it("should be reactive", () => {

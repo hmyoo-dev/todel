@@ -24,9 +24,18 @@ export interface StateModifier<Draft> {
   (current: Draft): Draft | void;
 }
 
+export interface AsyncStateModifiers<Result, Draft> {
+  promise: Promise<Result>;
+  memo?: string;
+  started?: StateModifier<Draft>;
+  done?: (state: Draft, result: Result) => Draft | void;
+  failed?: (state: Draft, err: unknown) => Draft | void;
+}
+
 export interface AtomSetupPayload<State, Deps = void> {
   getState(): State;
   setState(modifier: StateModifier<State>, memo?: string): void;
+  asyncSetState<R>(modifiers: AsyncStateModifiers<R, State>): Promise<R>;
   initState?: State;
   deps: Deps;
 }
