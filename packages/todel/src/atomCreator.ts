@@ -31,7 +31,7 @@ export function atomCreator<State, Computed, Modifiers, M = Meta, Deps = void>(
         return getState();
       },
       toJson() {
-        return this.state;
+        return atom.state;
       },
       subscribe(consumer): Subscription {
         return atomPubSub.subscribe(consumer);

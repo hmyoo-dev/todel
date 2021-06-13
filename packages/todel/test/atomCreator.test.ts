@@ -42,7 +42,8 @@ describe("atomCreator", () => {
 
     it("should return state when toJson() called", () => {
       const counter = createCounterAtom({ initState: 1 });
-      expect(counter.toJson()).toBe(1);
+      const { toJson } = counter;
+      expect(toJson()).toBe(1);
     });
   });
 });
