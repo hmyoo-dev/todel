@@ -22,6 +22,9 @@ describe("atomCreator", () => {
       const counter = createCounterAtom({ initState: 0 });
       counter.modifiers.increase();
       expect(counter.state).toBe(1);
+
+      counter.modifiers.decrease();
+      expect(counter.state).toBe(0);
     });
 
     it("should be reactive", () => {

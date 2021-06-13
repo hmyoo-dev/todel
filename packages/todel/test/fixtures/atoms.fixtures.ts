@@ -20,7 +20,7 @@ export const createCounterAtom = atomCreator((payload: CounterSetupPayload) => {
     },
     modifiers: {
       increase(): void {
-        setState((state) => state + step);
+        setState((state) => (state += step));
       },
       decrease(): void {
         setState((state) => state - step);

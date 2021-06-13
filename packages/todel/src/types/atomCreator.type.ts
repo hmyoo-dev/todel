@@ -20,8 +20,8 @@ export interface AtomDraft<State, Computed, Modifiers, M = Meta>
   meta?: M;
 }
 
-export interface StateModifier<State> {
-  (current: State): State;
+export interface StateModifier<Draft> {
+  (current: Draft): Draft | void;
 }
 
 export interface AtomSetupPayload<State, Deps = void> {
