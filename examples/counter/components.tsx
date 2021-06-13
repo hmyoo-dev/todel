@@ -2,20 +2,20 @@ import React, { FC } from "react";
 import { useCounterAtomData, useCounterAtomModifiers } from "./CounterAtom";
 
 export const CounterControl: FC = () => {
-  const modifiers = useCounterAtomModifiers();
+  const { increase, decrease, reset } = useCounterAtomModifiers();
 
   return (
     <div>
-      <button onClick={modifiers.increase}>Increase</button>
+      <button onClick={increase}>Increase</button>
       &nbsp;
-      <button onClick={modifiers.decrease}>Decrease</button>
+      <button onClick={decrease}>Decrease</button>
       &nbsp;
-      <button onClick={modifiers.reset}>Reset</button>
+      <button onClick={reset}>Reset</button>
     </div>
   );
 };
 
 export const CounterCount: FC = () => {
-  const count = useCounterAtomData((atom) => atom.state.count);
+  const count = useCounterAtomData((atom) => atom.state);
   return <h2>{count}</h2>;
 };

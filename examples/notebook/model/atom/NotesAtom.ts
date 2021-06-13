@@ -23,62 +23,52 @@ export const createNotesAtom = atomCreator(
   (payload: AtomSetupPayload<NotesAtomState, NotesAtomDeps>) => {
     const {
       initState = initNotesState,
-      setState,
       getState,
       deps: { ajax },
+      asyncSetState,
     } = payload;
 
     return {
       initState,
       modifiers: {
         async fetchNotes(): Promise<NoteItem[]> {
-          setState((state) => {
-            state.fetching = true;
-          }, "fetchStarted");
+          return asyncSetState({
+            memo: "fetch",
+            promise: ajax
+              .get<NoteItem[]>("/api/notebook/")
+              .then((res) => res.data),
 
-          try {
-            const res = await ajax.get<NoteItem[]>("/api/notebook/");
-            const notes = res.data;
-
-            setState((state) => {
+            started: (state) => {
+              state.fetching = true;
+            },
+            done: (state, notes) => {
               state.fetching = false;
               state.notes = notes;
-            }, "fetchDone");
-
-            return notes;
-          } catch (err) {
-            setState((state) => {
+            },
+            failed: (state) => {
               state.fetching = false;
-            }, "fetchFailed");
-
-            throw err;
-          }
+            },
+          });
         },
 
         async postNote(draft: NoteDraft): Promise<NoteItem> {
-          if (getState().pendingUpdate) {
-            throw new Error("It's pending");
-          }
+          if (getState().pendingUpdate) throw new Error("It's pending");
 
-          setState((state) => {
-            state.pendingUpdate = true;
-          });
-
-          try {
-            const res = await ajax.post<NoteItem>("/api/notebook/", draft);
-            const note = res.data;
-            setState((state) => {
+          return asyncSetState({
+            promise: ajax
+              .post<NoteItem>("/api/notebook/", draft)
+              .then((res) => res.data),
+            started: (state) => {
+              state.pendingUpdate = true;
+            },
+            done: (state, note) => {
               state.pendingUpdate = false;
               state.notes.push(note);
-            });
-
-            return note;
-          } catch (err) {
-            setState((state) => {
+            },
+            failed: (state) => {
               state.pendingUpdate = false;
-            });
-            throw err;
-          }
+            },
+          });
         },
       },
     };
