@@ -77,6 +77,10 @@ export const createNotesAtom = atomCreator(
 
 export type NotesAtom = ReturnType<typeof createNotesAtom>;
 
-export const notesAtomId = "NOTES";
+export interface NotesAtomHolder {
+  notes: NotesAtom;
+}
 
-export const useNotesAtom = createStoreAtomHook<NotesAtom>(notesAtomId);
+export const useNotesAtom = createStoreAtomHook(
+  (holder: NotesAtomHolder) => holder.notes
+);

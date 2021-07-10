@@ -13,7 +13,7 @@ export const createCounterAtom = atomCreator(
           setState((count) => count - 1);
         },
         reset(): void {
-          setState(() => 0);
+          setState(() => initState);
         },
       },
     };

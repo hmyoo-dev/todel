@@ -42,6 +42,10 @@ export const createNoticesAtom = atomCreator(
 
 export type NoticesAtom = ReturnType<typeof createNoticesAtom>;
 
-export const noticesAtomId = "NOTICES";
+export interface NoticesAtomHolder {
+  notices: NoticesAtom;
+}
 
-export const useNoticesAtom = createStoreAtomHook<NoticesAtom>(noticesAtomId);
+export const useNoticesAtom = createStoreAtomHook(
+  (holder: NoticesAtomHolder) => holder.notices
+);

@@ -1,4 +1,5 @@
 export * from "./actionCreators";
+export * from "./ActionHandlerBuilder";
 export * from "./actionHandlerHelpers";
 export * from "./atomCreator";
 export * from "./PubSub";

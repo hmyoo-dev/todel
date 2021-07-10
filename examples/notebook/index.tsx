@@ -13,51 +13,35 @@ import {
   NoteDraftAtom,
   NoteDraftAtomProvider,
 } from "./model/atom/NoteDraftAtom";
+import { createNotesAtom } from "./model/atom/NotesAtom";
+import { createNoticesAtom } from "./model/atom/NoticesAtom";
 import {
-  createNotesAtom,
-  NotesAtom,
-  notesAtomId,
-} from "./model/atom/NotesAtom";
-import {
-  createNoticesAtom,
-  NoticesAtom,
-  noticesAtomId,
-} from "./model/atom/NoticesAtom";
-import { createNoteActionHandler } from "./model/noteActionHandler";
+  notebookActionHandler,
+  NotebookAtoms,
+  notebookErrorHandler,
+} from "./model/notebookActionHandler";
 
-interface Atoms {
-  [notesAtomId]: NotesAtom;
-  [noticesAtomId]: NoticesAtom;
-}
-
-function createStore(): { store: Store<Atoms>; draft: NoteDraftAtom } {
+function createStore(noteDraft: NoteDraftAtom): Store<NotebookAtoms> {
   const ajax = Axios.create();
 
-  const draft = createNoteDraftAtom();
-  const notes = createNotesAtom({ deps: { ajax } });
-  const notices = createNoticesAtom();
-
-  const atoms: Atoms = {
-    [notesAtomId]: notes,
-    [noticesAtomId]: notices,
-  };
-
-  const store = new Store<Atoms>({
-    atoms,
-    actionHandlers: [createNoteActionHandler({ notes, draft })],
-    errorHandler(err) {
-      if (err instanceof Error) {
-        notices.modifiers.notify(err.message);
-      }
+  const store = new Store<NotebookAtoms>({
+    atoms: {
+      noteDraft,
+      notes: createNotesAtom({ deps: { ajax } }),
+      notices: createNoticesAtom(),
     },
+    actionHandler: notebookActionHandler,
+    errorHandler: notebookErrorHandler,
   });
 
   applyReduxDevtools(store, { name: "NOTEBOOK" });
-  return { store, draft };
+
+  return store;
 }
 
 const App: FC = () => {
-  const { store, draft } = createStore();
+  const draft = createNoteDraftAtom();
+  const store = createStore(draft);
 
   useEffect(() => store.dispatch(init()));
 
@@ -70,6 +54,7 @@ const App: FC = () => {
       <hr />
       <NotificationBar />
       <hr />
+
       <NoteList />
     </StoreProvider>
   );

@@ -56,4 +56,6 @@ export const {
   useLocalAtomModifiers: useNoteDraftAtomModifiers,
 } = createLocalAtomContext<NoteDraftAtom>();
 
-export const noteDraftAtomId = "NOTE_DRAFT";
+export interface NoteDraftAtomHolder {
+  noteDraft: NoteDraftAtom;
+}

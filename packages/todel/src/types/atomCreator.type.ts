@@ -20,6 +20,10 @@ export interface AtomDraft<State, Computed, Modifiers, M = Meta>
   meta?: M;
 }
 
+export interface AtomDict {
+  [key: string]: AnyAtom | AtomDict;
+}
+
 export interface StateModifier<Draft> {
   (current: Draft): Draft | void;
 }

@@ -1,4 +1,4 @@
-import { ActionHandler, Store } from "todel";
+import { ActionHandler, AtomDict, Store } from "todel";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 type AnyFunc = (...args: any[]) => any;
@@ -13,9 +13,9 @@ export function mockMethod<
   return mock;
 }
 
-export function mockStore<Atoms = unknown>(
+export function mockStore<Atoms extends AtomDict = AtomDict>(
   atoms: Atoms,
-  actionHandlers: ActionHandler[] = []
+  actionHandler: ActionHandler = jest.fn()
 ): Store<Atoms> {
-  return new Store({ atoms, actionHandlers });
+  return new Store({ atoms, actionHandler });
 }

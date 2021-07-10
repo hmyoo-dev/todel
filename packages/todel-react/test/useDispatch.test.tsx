@@ -1,16 +1,13 @@
 import { act, renderHook } from "@testing-library/react-hooks";
 import React, { FC } from "react";
-import { Store } from "todel";
 import { increase } from "todel-test-helpers/fixtures";
+import { mockStore } from "todel-test-helpers/helpers";
 import { StoreProvider } from "../src/StoreProvider";
 import { useDispatch } from "../src/useDispatch";
 
 describe("useDispatch", () => {
   it("should dispatch to store", () => {
-    const store = new Store({
-      atoms: {},
-      actionHandlers: [],
-    });
+    const store = mockStore({});
     const Wrapper: FC = ({ children }) => (
       <StoreProvider store={store}>{children}</StoreProvider>
     );

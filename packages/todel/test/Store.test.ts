@@ -1,17 +1,19 @@
-import { actionCreator } from "../src/actionCreators";
+import { ActionHandlerBuilder } from "../src/ActionHandlerBuilder";
 import { Store } from "../src/Store";
-import type { ActionHandler, Consumer } from "../src/types";
+import type { Consumer } from "../src/types/common.type";
+import {
+  decrease,
+  emitErr,
+  increase,
+  throwAsyncError,
+  throwError,
+  triggerDecrease,
+} from "./fixtures/actions.fixtures";
 import { CounterAtom, createCounterAtom } from "./fixtures/atoms.fixtures";
 
 describe("Store", () => {
-  it("can be created by provider", () => {
-    const store = new Store(() => {
-      const counter = createCounterAtom({ initState: 10 });
-      return {
-        atoms: { counter },
-        actionHandlers: [actionHandler(counter)],
-      };
-    });
+  it("can be created by a provider", () => {
+    const store = createStore({ initState: 10 });
 
     expect(store.atoms.counter.state).toEqual(10);
   });
@@ -52,9 +54,14 @@ describe("Store", () => {
     expect(actionTypes).toEqual([triggerDecrease.type, decrease.type]);
   });
 
-  it("should catch error in sync logic", () => {
+  it("should throw error if has error", () => {
+    const store = createStore();
+    expect(() => store.dispatch(throwError())).toThrowError("test");
+  });
+
+  it("should catch error in sync logic", async () => {
     const errorHandler = jest.fn();
-    const store = createStore(errorHandler);
+    const store = createStore({ errorHandler });
 
     store.dispatch(throwError());
 
@@ -63,7 +70,7 @@ describe("Store", () => {
 
   it("should catch error in async logic", async () => {
     const errorHandler = jest.fn();
-    const store = createStore(errorHandler);
+    const store = createStore({ errorHandler });
 
     store.dispatch(throwAsyncError());
 
@@ -74,24 +81,27 @@ describe("Store", () => {
 
   it("should catch emitted error", () => {
     const errorHandler = jest.fn();
-    const store = createStore(errorHandler);
+    const store = createStore({ errorHandler });
 
     store.dispatch(emitErr());
 
     checkErrorHandler(errorHandler, "test");
   });
 
-  it("should throw error when a handler is not provided", () => {
-    const store = createStore();
-
-    expect(() => store.dispatch(throwError())).toThrowError();
-  });
-
-  it("should serialize services", () => {
-    const store = createStore();
+  it("should serialize atoms", () => {
+    const store = new Store({
+      atoms: {
+        counter: createCounterAtom({ initState: 1 }),
+        sub: {
+          counter: createCounterAtom(),
+        },
+        error: null,
+      } as never,
+      actionHandler: jest.fn(),
+    });
     const result = store.toJson();
 
-    expect(result).toEqual({ counter: 0 });
+    expect(result).toEqual({ counter: 1, sub: { counter: 0 } });
   });
 
   it("could subscribe action emitter", (done) => {
@@ -114,52 +124,46 @@ describe("Store", () => {
   }
 });
 
-// actions
-const increase = actionCreator("increase");
-const decrease = actionCreator("decrease");
-const triggerDecrease = actionCreator("triggerDecrease");
-const throwError = actionCreator("throwError");
-const throwAsyncError = actionCreator("throwAsyncError");
-const emitErr = actionCreator("emitError");
+type Atoms = {
+  counter: CounterAtom;
+};
 
-function actionHandler(counter: CounterAtom): ActionHandler {
-  return (action, { emitError, dispatch }) => {
-    if (increase.match(action)) {
-      return counter.modifiers.increase();
-    }
-    if (decrease.match(action)) {
-      return counter.modifiers.decrease();
-    }
-    if (triggerDecrease.match(action)) {
-      return dispatch(decrease());
-    }
-    if (throwError.match(action)) {
-      throw new Error("test");
-    }
-    if (throwAsyncError.match(action)) {
-      return throwAsync();
-    }
-    if (emitErr.match(action)) {
-      return emitError(new Error("test"));
-    }
-  };
-}
+const actionHandler = ActionHandlerBuilder.create<Atoms>()
+  .addCase(increase.match, (_, { counter }) => {
+    counter.modifiers.increase();
+  })
+  .addCase(decrease.match, (_, { counter }) => {
+    counter.modifiers.decrease();
+  })
+  .addCase(triggerDecrease.match, (_, __, { dispatch }) => {
+    dispatch(decrease());
+  })
+  .addCase(throwError.match, () => {
+    throw new Error("test");
+  })
+  .addCase(throwAsyncError.match, () => throwAsync())
+  .addCase(emitErr.match, (_, __, { emitError }) =>
+    emitError(new Error("test"))
+  )
+  .build();
 
 async function throwAsync(): Promise<void> {
   await wait(3);
   throw new Error("async test");
 }
 
-interface AtomsRepo {
-  counter: CounterAtom;
-}
+function createStore(
+  option: {
+    errorHandler?: Consumer<unknown>;
+    initState?: number;
+  } = {}
+): Store<Atoms> {
+  const { errorHandler, initState } = option;
+  const counter = createCounterAtom({ initState });
 
-function createStore(errorHandler?: Consumer<unknown>): Store<AtomsRepo> {
-  const counter = createCounterAtom({ initState: 0 });
-
-  return new Store<AtomsRepo>({
+  return new Store<Atoms>({
     atoms: { counter },
-    actionHandlers: [actionHandler(counter)],
+    actionHandler,
     errorHandler,
   });
 }
