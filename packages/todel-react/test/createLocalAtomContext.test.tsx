@@ -1,6 +1,6 @@
 import { act, renderHook } from "@testing-library/react-hooks";
 import React, { FC } from "react";
-import { createCounterAtom, ICounterAtom } from "todel-test-helpers/fixtures";
+import { CounterAtom, createCounterAtom } from "todel-test-helpers/fixtures";
 import { createLocalAtomContext } from "../src/createLocalAtomContext";
 
 describe("createLocalAtomContext", () => {
@@ -8,25 +8,25 @@ describe("createLocalAtomContext", () => {
     Provider,
     useLocalAtomData,
     useLocalAtomModifiers,
-  } = createLocalAtomContext<ICounterAtom>();
+  } = createLocalAtomContext<CounterAtom>();
 
-  let counter: ICounterAtom;
+  let counter: CounterAtom;
   let wrapper: FC;
 
   beforeEach(() => {
-    counter = createCounterAtom({ initState: { count: 0 } });
+    counter = createCounterAtom({ initState: 0 });
     assignWrapper();
   });
 
   it("should return provided atom", () => {
     const { result } = renderHook(() => useLocalAtomData(), { wrapper });
-    expect(result.current.state).toEqual({ count: 0 });
+    expect(result.current.state).toEqual(0);
   });
 
   it("should be reactive", () => {
     const { result } = renderHook(
       () => {
-        const count = useLocalAtomData((atom) => atom.state.count);
+        const count = useLocalAtomData((atom) => atom.state);
         const modifiers = useLocalAtomModifiers();
         return { count, modifiers };
       },
@@ -40,17 +40,17 @@ describe("createLocalAtomContext", () => {
 
   it("should not render when selected value is not changed", () => {
     const renderer = jest.fn(() => {
-      const count = useLocalAtomData((atom) => atom.state.count);
-      const modifiers = useLocalAtomModifiers();
-      return { count, modifiers };
+      const count = useLocalAtomData((atom) => atom.state);
+      const { setCount } = useLocalAtomModifiers();
+      return { count, setCount };
     });
 
     const { result } = renderHook(renderer, { wrapper });
 
     expect(result.current.count).toBe(0);
-    act(() => result.current.modifiers.setCount(0));
-    act(() => result.current.modifiers.setCount(0));
-    act(() => result.current.modifiers.setCount(0));
+    act(() => result.current.setCount(0));
+    act(() => result.current.setCount(0));
+    act(() => result.current.setCount(0));
 
     expect(renderer).toHaveBeenCalledTimes(1);
   });

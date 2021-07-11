@@ -1,5 +1,11 @@
 import { createLocalAtomContext } from "@todel/react";
-import { atomCreator, AtomMeta, AtomSetupPayload } from "todel";
+import {
+  atomCreator,
+  AtomMeta,
+  AtomSetupPayload,
+  computed,
+  modifier,
+} from "todel";
 import { NoteDraft } from "../dataTypes";
 
 export interface NoteDraftAtomState {
@@ -26,24 +32,19 @@ export const createNoteDraftAtom = atomCreator(
     return {
       initState,
       meta,
-      computed: {
-        isFulfilled(): boolean {
-          const { title, content } = getState().draft;
-          return [title, content].every((text) => text.trim().length > 0);
-        },
-      },
-      modifiers: {
-        update(draft: Partial<NoteDraft>): void {
-          setState((state) => {
-            state.draft = { ...state.draft, ...draft };
-          });
-        },
-        clear(): void {
-          setState((state) => {
-            state.draft = emptyDraft;
-          });
-        },
-      },
+      isFulfilled: computed(() => {
+        const { title, content } = getState().draft;
+        return [title, content].every((text) => text.trim().length > 0);
+      }),
+      update: modifier((draft: Partial<NoteDraft>) => {
+        setState((state) => ({
+          ...state,
+          draft: { ...state.draft, ...draft },
+        }));
+      }),
+      clear: modifier(() => {
+        setState((state) => ({ ...state, draft: emptyDraft }));
+      }),
     };
   }
 );

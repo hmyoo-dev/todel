@@ -3,7 +3,7 @@ eslint-disable
   @typescript-eslint/no-explicit-any,
 */
 import { useContext } from "react";
-import { AnyAtom, ReadonlyAtom, ReadonlyAtoms } from "todel";
+import { AnyAtom, ReadableAtom, ReadableAtoms } from "todel";
 import { StoreContext } from "./StoreContext";
 import { EqualComparator } from "./types";
 import { useAtomsSubscribe } from "./useAtomSubscribe";
@@ -17,14 +17,14 @@ export interface AtomsPicker<Arr extends AnyAtom[]> {
 }
 
 export interface AtomSelector<A extends AnyAtom, Result> {
-  (atom: ReadonlyAtom<A>): Result;
+  (atom: ReadableAtom<A>): Result;
 }
 export interface AtomsSelector<Atoms extends AnyAtom[], Result> {
-  (...atoms: ReadonlyAtoms<Atoms>): Result;
+  (...atoms: ReadableAtoms<Atoms>): Result;
 }
 
 export interface UseAtomSelector<A extends AnyAtom> {
-  (): ReadonlyAtom<A>;
+  (): ReadableAtom<A>;
   <R>(selector: AtomSelector<A, R>, equalityFn?: EqualComparator<R>): R;
 }
 

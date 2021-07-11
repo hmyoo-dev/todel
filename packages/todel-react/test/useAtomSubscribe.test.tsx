@@ -1,13 +1,13 @@
 import { act, renderHook } from "@testing-library/react-hooks";
-import { IAnyAtom } from "todel";
-import { createCounterAtom, ICounterAtom } from "todel-test-helpers/fixtures";
+import { AnyAtom } from "todel";
+import { CounterAtom, createCounterAtom } from "todel-test-helpers/fixtures";
 import { useAtomsSubscribe } from "../src/useAtomSubscribe";
 
 describe("useAtomSubscribe", () => {
-  let counter: ICounterAtom;
+  let counter: CounterAtom;
 
   beforeEach(() => {
-    counter = createCounterAtom({ initState: { count: 0 } });
+    counter = createCounterAtom({ initState: 0 });
   });
 
   it("should return selected value", () => {
@@ -29,9 +29,9 @@ describe("useAtomSubscribe", () => {
       })
     );
 
-    expect(result.current.state.count).toEqual(0);
-    act(() => counter.modifiers.increase());
-    expect(result.current.state.count).toEqual(1);
+    expect(result.current.state).toEqual(0);
+    act(() => counter.increase());
+    expect(result.current.state).toEqual(1);
   });
 
   it("should optimize render with equality function", () => {
@@ -39,19 +39,19 @@ describe("useAtomSubscribe", () => {
       useAtomsSubscribe({
         atoms: [counter],
         selector: selectSingleCounter,
-        equalityFn: (prev, next) => prev.state.count === next.state.count,
+        equalityFn: (prev, next) => prev.state === next.state,
       })
     );
 
     const { result } = renderHook(render);
 
-    expect(result.current.state.count).toEqual(0);
+    expect(result.current.state).toEqual(0);
 
-    act(() => counter.modifiers.setCount(0));
-    act(() => counter.modifiers.setCount(0));
-    act(() => counter.modifiers.setCount(0));
+    act(() => counter.setCount(0));
+    act(() => counter.setCount(0));
+    act(() => counter.setCount(0));
 
-    expect(result.current.state.count).toEqual(0);
+    expect(result.current.state).toEqual(0);
     expect(render).toHaveBeenCalledTimes(1);
   });
 
@@ -72,6 +72,6 @@ describe("useAtomSubscribe", () => {
   });
 });
 
-function selectSingleCounter(atom: IAnyAtom): ICounterAtom {
-  return atom as ICounterAtom;
+function selectSingleCounter(atom: AnyAtom): CounterAtom {
+  return atom as CounterAtom;
 }

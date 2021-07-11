@@ -12,14 +12,14 @@ export const notebookActionHandler = ActionHandlerBuilder.create<
   NotebookAtoms
 >()
   .addCase(init.match, (_, { notes }) => {
-    notes.modifiers.fetchNotes();
+    notes.fetchNotes();
   })
   .addCase(updateDraft.match, (action, { noteDraft }) =>
-    noteDraft.modifiers.update(action.payload)
+    noteDraft.update(action.payload)
   )
   .addCase(postNote.match, async (_, { notes, noteDraft }) => {
-    await notes.modifiers.postNote(noteDraft.state.draft);
-    noteDraft.modifiers.clear();
+    await notes.postNote(noteDraft.state.draft);
+    noteDraft.clear();
   })
   .build();
 
@@ -28,6 +28,6 @@ export const notebookErrorHandler: ActionErrorHandler<NotebookAtoms> = (
   { notices }
 ) => {
   if (err instanceof Error) {
-    notices.modifiers.notify(err.message);
+    notices.notify(err.message);
   }
 };

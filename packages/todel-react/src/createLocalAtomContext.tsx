@@ -1,17 +1,23 @@
 import React, { createContext, FC, useContext } from "react";
-import { AnyAtom, AtomModifiers, Func, ReadonlyAtom } from "todel";
+import {
+  AnyAtom,
+  Func,
+  isModifierMethod,
+  ReadableAtom,
+  WritableAtom,
+} from "todel";
 import { EqualComparator } from "./types";
 import { useAtomsSubscribe } from "./useAtomSubscribe";
 import { shallowEqual } from "./utils";
 
 type LocalAtomProvider<A extends AnyAtom> = FC<{ atom: A }>;
 export interface UseLocalAtomData<A extends AnyAtom> {
-  (): ReadonlyAtom<A>;
-  <R>(selector: Func<ReadonlyAtom<A>, R>, equalityFn?: EqualComparator<R>): R;
+  (): ReadableAtom<A>;
+  <R>(selector: Func<ReadableAtom<A>, R>, equalityFn?: EqualComparator<R>): R;
 }
 
 export interface UseLocalAtomModifiers<A extends AnyAtom> {
-  (): AtomModifiers<A>;
+  (): WritableAtom<A>;
 }
 
 export interface LocalAtomContext<A extends AnyAtom> {
@@ -50,7 +56,13 @@ export function createLocalAtomContext<A extends AnyAtom>(): LocalAtomContext<
 
   const useLocalAtomModifiers: UseLocalAtomModifiers<A> = () => {
     const contextAtom = useAtomContext();
-    return contextAtom.modifiers;
+    const modifiers: Record<string, unknown> = {};
+    for (const [key, val] of Object.entries(contextAtom)) {
+      if (isModifierMethod(val)) {
+        modifiers[key] = val;
+      }
+    }
+    return modifiers as WritableAtom<A>;
   };
 
   return { Provider, useLocalAtomData, useLocalAtomModifiers };

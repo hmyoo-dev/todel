@@ -55,7 +55,7 @@ describe("applyReduxDevtools", () => {
     store = mockStore(repo);
     mockStoreJson();
     applyDevtools();
-    atom.modifiers.increase();
+    atom.increase();
 
     expect(devtools.send).toHaveBeenCalledWith({ type: "> test" }, state);
   });

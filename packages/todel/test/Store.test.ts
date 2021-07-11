@@ -102,6 +102,9 @@ describe("Store", () => {
     const result = store.toJson();
 
     expect(result).toEqual({ counter: 1, sub: { counter: 0 } });
+
+    const invalidStore = new Store({ atoms: null, actionHandler: jest.fn() });
+    expect(invalidStore.toJson()).toEqual({});
   });
 
   it("could subscribe action emitter", (done) => {
@@ -130,10 +133,10 @@ type Atoms = {
 
 const actionHandler = ActionHandlerBuilder.create<Atoms>()
   .addCase(increase.match, (_, { counter }) => {
-    counter.modifiers.increase();
+    counter.increase();
   })
   .addCase(decrease.match, (_, { counter }) => {
-    counter.modifiers.decrease();
+    counter.decrease();
   })
   .addCase(triggerDecrease.match, (_, __, { dispatch }) => {
     dispatch(decrease());

@@ -1,4 +1,4 @@
-import { atomCreator } from "../../src/atomCreator";
+import { atomCreator, computed, modifier } from "../../src/atomCreator";
 import { AtomSetupPayload } from "../../src/types/atomCreator.type";
 
 export interface CounterDeps {
@@ -13,67 +13,39 @@ export const createCounterAtom = atomCreator((payload: CounterSetupPayload) => {
 
   return {
     initState,
-    computed: {
-      getDoubled(): number {
-        return getState() * 2;
-      },
-    },
-    modifiers: {
-      increase(): void {
-        setState((state) => (state += step));
-      },
-      decrease(): void {
-        setState((state) => state - step);
-      },
-    },
+    isGreaterThen: computed((num: number) => getState() > num),
+    increase: modifier(() => setState((state) => state + step)),
+    decrease: modifier(() => setState((state) => state - step)),
+    fetch: modifier(
+      async (response: Promise<number>): Promise<number> => {
+        const num = await response;
+        setState(() => num);
+        return num;
+      }
+    ),
   };
 });
 
 export type CounterAtom = ReturnType<typeof createCounterAtom>;
 
-export enum AjaxStatus {
-  Idle = "idle",
-  Pending = "pending",
-  Done = "done",
-  Failed = "failed",
-}
 export interface AjaxAtomState {
-  status: AjaxStatus;
   data: string | null;
-  err: unknown | null;
 }
 
-export type AjaxAtomSetupPayload = AtomSetupPayload<AjaxAtomState>;
+export const createAjaxAtom = atomCreator(
+  (payload: AtomSetupPayload<AjaxAtomState>) => {
+    const { initState = { data: null }, setState } = payload;
 
-export const createAjaxAtom = atomCreator((payload: AjaxAtomSetupPayload) => {
-  const {
-    initState = { status: AjaxStatus.Idle, data: null, err: null },
-    asyncSetState,
-  } = payload;
-
-  return {
-    initState,
-    modifiers: {
-      fetch(promise: Promise<string>, memo?: string): Promise<string> {
-        return asyncSetState({
-          promise,
-          memo,
-          started: (state) => {
-            state.status = AjaxStatus.Pending;
-          },
-          done: (state, result) => {
-            state.status = AjaxStatus.Done;
-            state.data = result;
-          },
-          failed: (state, err) => {
-            state.status = AjaxStatus.Failed;
-            state.err = err;
-          },
-        });
-      },
-      nothing(promise: Promise<string>): Promise<string> {
-        return asyncSetState({ promise });
-      },
-    },
-  };
-});
+    return {
+      initState,
+      fetch: modifier(
+        (promise: Promise<string>): Promise<string> => {
+          return promise.then((data) => {
+            setState((state) => ({ ...state, data }));
+            return data;
+          });
+        }
+      ),
+    };
+  }
+);

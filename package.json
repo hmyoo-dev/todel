@@ -19,6 +19,7 @@
     "build": "lerna run build",
     "build:watch": "lerna run build:watch --parallel",
     "test": "lerna run test --stream",
+    "test:watch": "lerna run test --stream -- --watch",
     "coverage": "lerna run coverage --stream",
     "examples": "yarn workspace examples dev"
   },

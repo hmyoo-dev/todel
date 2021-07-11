@@ -1,106 +1,69 @@
-import {
-  AjaxStatus,
-  createAjaxAtom,
-  createCounterAtom,
-} from "./fixtures/atoms.fixtures";
+import { isComputedMethod, isModifierMethod } from "../src";
+import { createCounterAtom } from "./fixtures/atoms.fixtures";
 
 describe("atomCreator", () => {
-  describe("atom", () => {
-    it("could be created without init state", () => {
-      const counter = createCounterAtom();
-      expect(counter.state).toBe(0);
-    });
+  test("default init state", () => {
+    const counter = createCounterAtom();
+    expect(counter.state).toBe(0);
+  });
 
-    it("could be created with init state", () => {
-      const counter = createCounterAtom({ initState: 10 });
-      expect(counter.state).toBe(10);
-    });
+  test("injected init state", () => {
+    const counter = createCounterAtom({ initState: 10 });
+    expect(counter.state).toBe(10);
+  });
 
-    it("could be created with deps", () => {
-      const counter = createCounterAtom({ initState: 0, deps: { step: 10 } });
-      counter.modifiers.increase();
-      expect(counter.state).toBe(10);
-    });
+  test("deps", () => {
+    const counter = createCounterAtom({ initState: 0, deps: { step: 10 } });
+    counter.increase();
+    expect(counter.state).toBe(10);
+  });
 
-    it("should be update with modifier", () => {
-      const counter = createCounterAtom({ initState: 0 });
-      counter.modifiers.increase();
-      expect(counter.state).toBe(1);
+  test("method kind", () => {
+    const counter = createCounterAtom();
+    expect(isComputedMethod(null)).toBe(false);
+    expect(isComputedMethod(() => undefined)).toBe(false);
+    expect(isComputedMethod(counter.isGreaterThen)).toBe(true);
+    expect(isModifierMethod(counter.increase)).toBe(true);
+  });
 
-      counter.modifiers.decrease();
-      expect(counter.state).toBe(0);
-    });
+  test("computed", () => {
+    const counter = createCounterAtom({ initState: 2 });
 
-    describe("asyncModifier", () => {
-      test("success", async () => {
-        const atom = createAjaxAtom();
+    expect(counter.isGreaterThen(1)).toBe(true);
+    expect(counter.isGreaterThen(3)).toBe(false);
+  });
 
-        const pending = atom.modifiers.fetch(Promise.resolve("test"));
-        expect(atom.state.status).toEqual(AjaxStatus.Pending);
+  test("modifier", () => {
+    const counter = createCounterAtom({ initState: 0 });
+    counter.increase();
+    expect(counter.state).toBe(1);
 
-        await pending;
-        const { status, data } = atom.state;
-        expect(status).toEqual(AjaxStatus.Done);
-        expect(data).toEqual("test");
-      });
+    counter.decrease();
+    expect(counter.state).toBe(0);
+  });
 
-      test("failed", (done) => {
-        const atom = createAjaxAtom();
-        atom.modifiers.fetch(Promise.reject("err")).catch((err) => {
-          expect(atom.state.status).toEqual(AjaxStatus.Failed);
-          expect(err).toEqual("err");
-          done();
-        });
-      });
+  test("async modifier", async () => {
+    const counter = createCounterAtom({ initState: 0 });
+    const num = await counter.fetch(Promise.resolve(10));
 
-      test("memo", async () => {
-        const atom = createAjaxAtom();
-        const subscriber = jest.fn();
-        atom.subscribe(subscriber);
+    expect(num).toEqual(10);
+    expect(counter.state).toEqual(10);
+  });
 
-        await atom.modifiers.fetch(Promise.resolve("hello"), "foo");
+  test("subscribe", () => {
+    const counter = createCounterAtom({ initState: 0 });
+    const subscriber = jest.fn();
 
-        const [started, done] = subscriber.mock.calls;
-        expect(started).toEqual([atom, "foo/started"]);
-        expect(done).toEqual([atom, "foo/done"]);
-      });
+    counter.subscribe(subscriber);
+    counter.increase();
 
-      test("nothing-success", async () => {
-        const atom = createAjaxAtom();
-        await atom.modifiers.nothing(Promise.resolve("nothing"));
-        expect(atom.state.status).toEqual(AjaxStatus.Idle);
-      });
+    expect(subscriber).toHaveBeenCalledTimes(1);
+    expect(subscriber).toHaveBeenCalledWith(counter, null);
+  });
 
-      test("nothing-failed", (done) => {
-        const atom = createAjaxAtom();
-        atom.modifiers.nothing(Promise.reject("nothing")).catch((err) => {
-          expect(atom.state.status).toEqual(AjaxStatus.Idle);
-          expect(err).toEqual("nothing");
-          done();
-        });
-      });
-    });
-
-    it("should be reactive", () => {
-      const counter = createCounterAtom({ initState: 0 });
-      const subscriber = jest.fn();
-
-      counter.subscribe(subscriber);
-      counter.modifiers.increase();
-
-      expect(subscriber).toHaveBeenCalledTimes(1);
-      expect(subscriber).toHaveBeenCalledWith(counter, null);
-    });
-
-    it("should have computed value", () => {
-      const counter = createCounterAtom({ initState: 1 });
-      expect(counter.computed.getDoubled()).toBe(2);
-    });
-
-    it("should return state when toJson() called", () => {
-      const counter = createCounterAtom({ initState: 1 });
-      const { toJson } = counter;
-      expect(toJson()).toBe(1);
-    });
+  test("toJson", () => {
+    const counter = createCounterAtom({ initState: 1 });
+    const { toJson } = counter;
+    expect(toJson()).toBe(1);
   });
 });

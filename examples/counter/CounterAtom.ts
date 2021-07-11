@@ -1,21 +1,13 @@
 import { createLocalAtomContext } from "@todel/react";
-import { atomCreator, AtomSetupPayload } from "todel";
+import { atomCreator, AtomSetupPayload, modifier } from "todel";
 
 export const createCounterAtom = atomCreator(
   ({ initState = 0, setState }: AtomSetupPayload<number>) => {
     return {
       initState,
-      modifiers: {
-        increase(): void {
-          setState((count) => count + 1);
-        },
-        decrease(): void {
-          setState((count) => count - 1);
-        },
-        reset(): void {
-          setState(() => initState);
-        },
-      },
+      increase: modifier(() => setState((count) => count + 1)),
+      decrease: modifier(() => setState((count) => count - 1)),
+      reset: modifier(() => setState(() => initState)),
     };
   }
 );

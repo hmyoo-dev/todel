@@ -1,6 +1,6 @@
 import { createStoreAtomHook } from "@todel/react";
 import { AxiosInstance } from "axios";
-import { atomCreator, AtomSetupPayload } from "todel";
+import { atomCreator, AtomSetupPayload, modifier } from "todel";
 import { NoteDraft, NoteItem } from "../dataTypes";
 
 export interface NotesAtomState {
@@ -24,53 +24,48 @@ export const createNotesAtom = atomCreator(
     const {
       initState = initNotesState,
       getState,
+      setState,
       deps: { ajax },
-      asyncSetState,
     } = payload;
 
     return {
       initState,
-      modifiers: {
-        async fetchNotes(): Promise<NoteItem[]> {
-          return asyncSetState({
-            memo: "fetch",
-            promise: ajax
-              .get<NoteItem[]>("/api/notebook/")
-              .then((res) => res.data),
-
-            started: (state) => {
-              state.fetching = true;
-            },
-            done: (state, notes) => {
-              state.fetching = false;
-              state.notes = notes;
-            },
-            failed: (state) => {
-              state.fetching = false;
-            },
+      fetchNotes: modifier(async () => {
+        setState((state) => ({ ...state, fetching: true }));
+        return ajax
+          .get<NoteItem[]>("/api/notebook/")
+          .then((res) => res.data)
+          .then((notes) => {
+            setState((state) => ({ ...state, fetching: false, notes }));
+            return notes;
+          })
+          .catch((err) => {
+            setState((state) => ({ ...state, fetching: false }));
+            throw err;
           });
-        },
-
-        async postNote(draft: NoteDraft): Promise<NoteItem> {
+      }),
+      postNote: modifier(
+        async (draft: NoteDraft): Promise<NoteItem> => {
           if (getState().pendingUpdate) throw new Error("It's pending");
 
-          return asyncSetState({
-            promise: ajax
-              .post<NoteItem>("/api/notebook/", draft)
-              .then((res) => res.data),
-            started: (state) => {
-              state.pendingUpdate = true;
-            },
-            done: (state, note) => {
-              state.pendingUpdate = false;
-              state.notes.push(note);
-            },
-            failed: (state) => {
-              state.pendingUpdate = false;
-            },
-          });
-        },
-      },
+          setState((state) => ({ ...state, pendingUpdate: true }));
+          return ajax
+            .post<NoteItem>("/api/notebook/", draft)
+            .then((res) => res.data)
+            .then((note) => {
+              setState((state) => ({
+                ...state,
+                pendingUpdate: false,
+                notes: [...state.notes, note],
+              }));
+              return note;
+            })
+            .catch((err) => {
+              setState((state) => ({ ...state, pendingUpdate: false }));
+              throw err;
+            });
+        }
+      ),
     };
   }
 );

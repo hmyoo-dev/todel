@@ -14,7 +14,12 @@ export interface Guard<T, R extends T> {
   (input: T): input is R;
 }
 
-export type ErrorEmitter = Consumer<Error>;
+export type ExtendedKeys<T, E> = {
+  [K in keyof T]: T[K] extends E ? K : never;
+}[keyof T];
+
+export type PickOnlyExtended<T, E> = Pick<T, ExtendedKeys<T, E>>;
+
 export type Meta = Record<string, unknown>;
 
 export interface ToJsonOption {
@@ -31,4 +36,8 @@ export interface Subscription {
 
 export interface Subscribable<Values extends unknown[]> {
   subscribe(subscriber: MultiConsumer<Values>): Subscription;
+}
+
+export interface SelfSubscribable<Extra extends unknown[]> {
+  subscribe(subscriber: MultiConsumer<[this, ...Extra]>): Subscription;
 }
