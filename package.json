@@ -18,9 +18,9 @@
     "type-check": "lerna run type-check --parallel",
     "build": "lerna run build",
     "build:watch": "lerna run build:watch --parallel",
-    "test": "lerna run test --stream",
-    "test:watch": "lerna run test --stream -- --watch",
-    "coverage": "lerna run coverage --stream",
+    "test": "yarn jest",
+    "test:watch": "yarn jest --watch",
+    "coverage": "yarn jest --coverage",
     "examples": "yarn workspace examples dev"
   },
   "devDependencies": {
