@@ -1,3 +1,4 @@
+import produce from "immer";
 import { PubSub } from "./PubSub";
 import {
   Atom,
@@ -94,7 +95,7 @@ class ReactiveState<State> implements Subscribable<[string | null]> {
     updater: StateModifier<State>,
     memo: string | null = null
   ): void => {
-    this.state = updater(this.state);
+    this.state = produce(this.state, updater);
     this.pubSub.publish(memo);
   };
 

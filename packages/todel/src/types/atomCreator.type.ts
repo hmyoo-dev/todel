@@ -33,8 +33,8 @@ export interface AtomDict {
   [key: string]: AnyAtom | AtomDict;
 }
 
-export interface StateModifier<State> {
-  (current: State): State;
+export interface StateModifier<Draft> {
+  (current: Draft): Draft | void;
 }
 
 export interface AsyncStateModifiers<Result, Draft> {

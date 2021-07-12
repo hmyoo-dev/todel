@@ -37,13 +37,14 @@ export const createNoteDraftAtom = atomCreator(
         return [title, content].every((text) => text.trim().length > 0);
       }),
       update: modifier((draft: Partial<NoteDraft>) => {
-        setState((state) => ({
-          ...state,
-          draft: { ...state.draft, ...draft },
-        }));
+        setState((state) => {
+          state.draft = { ...state.draft, ...draft };
+        });
       }),
       clear: modifier(() => {
-        setState((state) => ({ ...state, draft: emptyDraft }));
+        setState((state) => {
+          state.draft = emptyDraft;
+        });
       }),
     };
   }
