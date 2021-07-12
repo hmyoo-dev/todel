@@ -22,6 +22,14 @@ export type PickOnlyExtended<T, E> = Pick<T, ExtendedKeys<T, E>>;
 
 export type Meta = Record<string, unknown>;
 
+export enum AsyncStatus {
+  Idle = "idle",
+  Pending = "pending",
+  Success = "success",
+  Failed = "failed",
+  Canceled = "canceled",
+}
+
 export interface ToJsonOption {
   profile?: string;
 }

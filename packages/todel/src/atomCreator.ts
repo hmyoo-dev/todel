@@ -1,5 +1,5 @@
-import produce from "immer";
 import { PubSub } from "./PubSub";
+import { ReactiveState } from "./ReactiveState";
 import {
   Atom,
   AtomCreator,
@@ -10,13 +10,8 @@ import {
   AtomMethodKind,
   AtomMethodKindChecker,
   AtomSetup,
-  StateModifier,
 } from "./types/atomCreator.type";
-import type {
-  MultiConsumer,
-  Subscribable,
-  Subscription,
-} from "./types/common.type";
+import type { Subscription } from "./types/common.type";
 
 export function atomCreator<State, M, Deps, Draft extends AtomDraft<State, M>>(
   setup: AtomSetup<State, M, Deps, Draft>
@@ -28,12 +23,13 @@ export function atomCreator<State, M, Deps, Draft extends AtomDraft<State, M>>(
     type ResultAtom = Atom<State, M, Draft>;
 
     const reactiveState = new ReactiveState<State>();
-    const { getState, setState, subscribe } = reactiveState;
+    const { getState, setState, asyncSetState, subscribe } = reactiveState;
 
     const draft = setup({
       initState,
       getState,
       setState,
+      asyncSetState,
       deps: deps as Deps,
     });
 
@@ -82,24 +78,3 @@ export const modifier = addMethodKind(AtomMethodKind.Modifier);
 
 export const isComputedMethod = createMethodChecker(AtomMethodKind.Computed);
 export const isModifierMethod = createMethodChecker(AtomMethodKind.Modifier);
-
-class ReactiveState<State> implements Subscribable<[string | null]> {
-  private pubSub = new PubSub<string | null>();
-  private state!: State;
-
-  getState = (): State => {
-    return this.state;
-  };
-
-  setState = (
-    updater: StateModifier<State>,
-    memo: string | null = null
-  ): void => {
-    this.state = produce(this.state, updater);
-    this.pubSub.publish(memo);
-  };
-
-  subscribe = (subscriber: MultiConsumer<[string | null]>): Subscription => {
-    return this.pubSub.subscribe(subscriber);
-  };
-}

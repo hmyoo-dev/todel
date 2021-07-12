@@ -22,11 +22,27 @@ export type Atom<
 } & JsonSerializable &
   SelfSubscribable<[string | null]>;
 
+export interface AtomStateSetter<State> {
+  (modifier: StateModifier<State>, memo?: string): void;
+}
+
+export interface AsyncSetStatePayload<State = unknown, Result = unknown> {
+  promise: Promise<Result>;
+  started?: (draft: State) => State | void;
+  done?: (draft: State, result: Result) => State | void;
+  failed?: (draft: State, error: unknown) => State | void;
+  memo?: string;
+}
+
+export interface AsyncSetState<State = unknown> {
+  <Result>(payload: AsyncSetStatePayload<State, Result>): Promise<Result>;
+}
 export interface AtomSetupPayload<State, Deps = void> {
   deps: Deps;
   initState?: State;
   getState: () => State;
-  setState: (modifier: StateModifier<State>, memo?: string) => void;
+  setState: AtomStateSetter<State>;
+  asyncSetState: AsyncSetState<State>;
 }
 
 export interface AtomDict {
